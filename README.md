@@ -1,3 +1,15 @@
+# MA proposal
+```bash
+PATH=/usr/local/texlive/2021/texmf-dist/doc/man:$PATH
+PATH=/usr/local/texlive/2021/texmf-dist/doc/info:$PATH
+PATH=/usr/local/texlive/2021/bin/x86_64-linux:$PATH
+
+make all
+make debug
+```
+
+
+
 # Sophisticated LaTeX Thesis Template
 
 [![Build Status](https://github.com/tubav/Thesis/workflows/test/badge.svg)](https://github.com/tubav/Thesis/actions)
