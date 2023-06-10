@@ -30,22 +30,37 @@ In this document, an enhancement for the 5G's GTP-U protocol with \ac{MTX} libra
 In this section, the problems with single-link tunnel will be presented.
 
 We define the metrices to measure performance of a tunnel as follow:
+
 \begin{itemize}
-    \item Bandwidth: Amount of data can be transmitted through per second, usually measured in Mega Bit per Second (Mbitps or Mbit/s) or Giga Bit per Second (Gbitps or Gbit/s)
-    \item Latency: Delay, measured in microsecond (usec) or millisecond (ms). Latency introduced by the tunneling process at both ends compared to sending data over the same public path without the tunnel.
-    \item System load: Tunneling process costs CPU time and RAM usage.
+\item Bandwidth: Amount of data can be transmitted through per second, usually measured in Mega Bit per Second (Mb/s) or Giga Bit per Second (Gb/s)
+\item Latency: Delay, measured in microsecond (usec) or millisecond (ms). Latency introduced by the tunneling process at both ends compared to sending data over the same public path without the tunnel.
+\item System load: Tunneling process costs CPU time and RAM usage.
 \end{itemize}
 
 % Combine links
-With reasonable powerful CPU, tunnel using technology such as DPDK and SR-IOV can saturate even 100Gbit NICs with a single CPU core \todo{cite and /ac}. 
-The datacenter and HPC sectors are deploying high speed NICs that are capable of scoring 200Gbit, although they still lag behind speed of in-CPU connection (https://www.amd.com/de/technologies/infinity-architecture) \todo{cite}.
-Due to physical and cost factor, connections between physical computer instances can hardly satisfy the processing power of CPUs \todo{cite+improve} which might be a bottleneck for certain applications that require distributed computing.
-However, this can be improved by combining bandwidth of many links. 
-A multipath tunnel will create a logical NIC for application, effectively abstracts the management, orchesteration tasks for the applications.
-\todo{sota: how these are being done in real life?}
-Such method can be useful for long term and short term usage: using existing technology and hardware to achieve higher bandwidth to reduce cost, and overcome physical limitation.
-
+The most commonly used technologies for communication in datacenter and \ac{HPC} environment are Ethernet and \ac{infinibandpage}, which currently offer 100-200Gb/s bandwidth per line \cite{ethernet_roadmap}\cite{infiniband_roadmap}.
+These kind of bandwidth between computers are nontheless impressive, yet not comparable to the processing power of CPU, i.e inter-chiplet connection \textit{Infinity Fabric} used in AMD's Zeppelin SoC provides 256GB/s in-package bandwidth \cite{burd_zeppelin_2019}, and up to 800GB/s connection in GPUs peer-to-peer test \cite{amd_infinity_architecture}.
+This means even when invested in the current latest networking hardware, the connection between computer instances might be the bottleneck for certain applications that require distributed computation, for example large \ac{AI} or simulation model.
+In this case, a multipath tunnel can multiple links into 1 single virtual connetion and eliminate the multipath details from the applications, effectively scales up the network capacity horizontally.
+The tunnel thus allow datacenter usage benifits from having larger combined bandwidth using current technology, but also is a neccessary tool to overcome eventual physical and economical limitation in the future.
+For less demanding usages, aggregation is an affordable method to build fast connection from available hardware \todo{improve}.
 % Reliability
+
+
+%%
+% Combine with a powerful CPU, networking application based on technologies such as \ac{dpdkpage} can saturate even a 100Gbit line using a single CPU core \cite{intel_dpdk_perf}. 
+% However, this can be improved by combining bandwidth of many links. 
+% A multipath tunnel will create a logical NIC for application, effectively abstracts the management, orchesteration tasks for the applications.
+% \todo{sota: how these are being done in real life?}
+% Such method can be useful for long term and short term usage: using existing technology and hardware to achieve higher bandwidth to reduce cost, and overcome physical limitation.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{resources/images/Interconnect_Technologies_500_supercomp.PNG}
+	\caption{Interconnect Technologies of top 500 super computer 2023 \cite{Interconnect_Technologies_500_supercomp}.}
+    \label{fig:introduction:Interconnect_Technologies_500_supercomp}
+\end{figure}
+
 
 
 % Perf: userspace vs kernelspace process
