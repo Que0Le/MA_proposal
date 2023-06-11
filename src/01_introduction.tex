@@ -15,7 +15,7 @@ Well known \ac{VPN} applications can be named: \ac{wgpage}, \ac{ovpnpage}, IPsec
 Although different in level of operation (Network layer, Data Link layer) and operation space (kernel or user space), they generally share the same concept of single link: the tunnel utilizes one single network link to transmit and receive the tunnel packets. 
 The other concept, namely \textit{multipath}, would deploy multiple network links so it can achieve higher reliability through redundancy or higher bandwidth through combining links, even though these characteristics are more relevant to environment such as infrastructure, datacenter or industrial application rather than end-user usage.
 There are protocols such as \ac{MPTCP}, \ac{SCTP} that implement the concept, albeit in form of non-sharable connection.
-A non-share connection is initiated similarly to initiating a socket and can only be used by by the caller program. 
+A non-share connection is initiated similarly to initiating a socket and can only be used by the caller program. 
 This severly limits the capability to control, schedule and share multipath resources between multiple applications in an effective manner, i.e prioritizing, buffering ... 
 These require centralized orchestration level of control over all communication channels by a control plane, which doesn't exist for these protocols.
 
@@ -29,23 +29,32 @@ In this document, an enhancement for the 5G's GTP-U protocol with \ac{MTX} libra
 \section{Problem Statement}\index{Requirements}
 In this section, the problems with single-link tunnel will be presented.
 
-We define the metrices to measure performance of a tunnel as follow:
+Besides Reliability chracteristic, we define the metrices to measure performance of a tunnel as follow:
 
 \begin{itemize}
-\item Bandwidth: Amount of data can be transmitted through per second, usually measured in Mega Bit per Second (Mb/s) or Giga Bit per Second (Gb/s)
-\item Latency: Delay, measured in microsecond (usec) or millisecond (ms). Latency introduced by the tunneling process at both ends compared to sending data over the same public path without the tunnel.
-\item System load: Tunneling process costs CPU time and RAM usage.
+    \item Bandwidth: Amount of data can be transmitted through per second, usually measured in Mega Bit per Second (Mb/s) or Giga Bit per Second (Gb/s)
+    \item Latency: Delay, measured in microsecond (usec) or millisecond (ms). Latency introduced by the tunneling process at both ends compared to sending data over the same public path without the tunnel.
+    \item System load: Tunneling process costs CPU time and RAM usage.
 \end{itemize}
 
 % Combine links
-The most commonly used technologies for communication in datacenter and \ac{HPC} environment are Ethernet and \ac{infinibandpage}, which currently offer 100-200Gb/s bandwidth per line \cite{ethernet_roadmap}\cite{infiniband_roadmap}.
-These kind of bandwidth between computers are nontheless impressive, yet not comparable to the processing power of CPU, i.e inter-chiplet connection \textit{Infinity Fabric} used in AMD's Zeppelin SoC provides 256GB/s in-package bandwidth \cite{burd_zeppelin_2019}, and up to 800GB/s connection in GPUs peer-to-peer test \cite{amd_infinity_architecture}.
+The most commonly used technologies for communication in datacenter and \ac{HPC} environment are Ethernet and \ac{infinibandpage} (\Cref{fig:introduction:Interconnect_Technologies_500_supercomp}), which currently offer 100-200Gb/s bandwidth per line \cite{ethernet_roadmap}\cite{infiniband_roadmap}.
+These kind of bandwidth between computers (or inter-system) are nontheless impressive, yet not comparable to the system's internal connection, i.e inter-chiplet bridge \textit{Infinity Fabric} used in AMD's Zeppelin SoC provides 256GB/s in-package bandwidth \cite{burd_zeppelin_2019}, and up to 800GB/s connection in GPUs peer-to-peer test \cite{amd_infinity_architecture}.
 This means even when invested in the current latest networking hardware, the connection between computer instances might be the bottleneck for certain applications that require distributed computation, for example large \ac{AI} or simulation model.
-In this case, a multipath tunnel can multiple links into 1 single virtual connetion and eliminate the multipath details from the applications, effectively scales up the network capacity horizontally.
+In this case, a multipath tunnel can hide hide the multipath details of merging multiple links from the applications, effectively scales up the network capacity horizontally.
 The tunnel thus allow datacenter usage benifits from having larger combined bandwidth using current technology, but also is a neccessary tool to overcome eventual physical and economical limitation in the future.
 For less demanding usages, aggregation is an affordable method to build fast connection from available hardware \todo{improve}.
-% Reliability
 
+% Reliability
+Connection's reliability is closely related to the failure probabilities of the individual links and nodes (component reliability, can directly effect service availability) \cite{shooman_algorithms_1995} and the \ac{QoS} parameters \cite{gozdecki_quality_2003}.
+Common connection's \ac{QoS}  parameters can be named: latency, peak throughput, jitter.
+Depends on the use case, reliability of the connection can be a \ac{QoS} measurement factor (i.e commercial network provider) or a strict requirement (i.e critical application).
+Generally, 2 non-exclusive stratergies are often used to increase a connection's reliability: through fortifying individual link, or redundancy.
+A connection's failure probability can be reduced by upgrading to a more resilent but expensive link or equipping with multiple failover lines. 
+Similarly, while better hardware can eliminate many \ac{QoS} inadequacy problems, having multiple links (or routes) each optimized for a type of appliance is certainly more suitable and affordable for the operator, especially if the data traffic is heterogeneous \cite{chen_overview_1998}.
+A multipath tunnel with flow-aware capability can be used in this case to manage the underlying links as an abstraction layer for the applications that utilize the connection. \todo{improve}
+
+%  heterogeneous data traffic
 
 %%
 % Combine with a powerful CPU, networking application based on technologies such as \ac{dpdkpage} can saturate even a 100Gbit line using a single CPU core \cite{intel_dpdk_perf}. 
@@ -57,7 +66,7 @@ For less demanding usages, aggregation is an affordable method to build fast con
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{resources/images/Interconnect_Technologies_500_supercomp.PNG}
-	\caption{Interconnect Technologies of top 500 super computer 2023 \cite{Interconnect_Technologies_500_supercomp}.}
+	\caption{Interconnect technologies of top 500 super computers, 2023 edition as tracked by TOP500 project \cite{Interconnect_Technologies_500_supercomp}}
     \label{fig:introduction:Interconnect_Technologies_500_supercomp}
 \end{figure}
 
