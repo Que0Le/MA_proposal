@@ -13,7 +13,7 @@ Similarly, network tunneling is a mean to organize traffic between host A and B 
 A \ac{VPN} is a application build on top of a tunnel to connect 2 networks, effectively allow its host to access the other internal network remotely.
 Well known \ac{VPN} applications can be named: \ac{wgpage}, \ac{ovpnpage}, IPsec, PPTP, PPPoE, L2TP, ...
 Despite of the difference in level of operation (network or data link layer) and operation space (kernel or user space), they generally share the same concept of single link: the tunnel utilizes one single network link to transmit and receive the tunnel packets. 
-The other concept, namely \textit{multipath}, would deploy multiple network links so it can achieve higher reliability through redundancy or higher bandwidth through combining links, even though these characteristics are more relevant to environment such as infrastructure, datacenter or industrial application rather than end-user usage.
+The other concept, namely \textit{multipath}, would deploy multiple network links so it can achieve higher reliability through redundancy or higher bandwidth through combining links, even though these characteristics are more relevant to environment such as infrastructure, data center or industrial application rather than end-user usage.
 There are protocols such as \ac{MPTCP}, \ac{SCTP} that implement the concept, albeit in form of non-sharable connection.
 A non-share connection is initiated similarly to initiating a socket and can only be used by the caller program. 
 This severely limits the capability to control, schedule and share multipath resources between multiple applications in an effective manner, i.e prioritizing, buffering ... 
@@ -21,7 +21,7 @@ These require centralized orchestration level of control over all communication 
 
 We propose another tunnel implementation: \ac{MTX}. 
 The tunnel will have multipath support by design, allow multiple applications to share the connection simultaneously, and be built based on Linux's \ac{xdppage} socket family.
-Using the latest native Linux's technology, the implementation is expected to performance-wise outperform any userspace implementation while retain compatibility with existing systems and code base's simplicity. 
+Using the latest native Linux's technology, the implementation is expected to performance-wise outperform any user space implementation while retain compatibility with existing systems and code base's simplicity. 
 Support for multiple connection links offers reliability, large raw-bandwidth and a rich set of configuration to applications binding to the tunnel, makes it suitable for high demand use-cases such as industry, data center, telecommunication hub. 
 In this document, an enhancement for the 5G's \ac{gptu} protocol \todo{cut this} with \ac{MTX} library will be investigated. \ac{gptu} is the protocol that helps UPF and gNodeB functions of a 5G system communicating, which demands both bandwidth and stability and therefore is a suitable match for a \ac{MTX} demonstration.
 
@@ -36,11 +36,11 @@ In this document, an enhancement for the 5G's \ac{gptu} protocol \todo{cut this}
 \section{Problem Statement}\index{Requirements}\label{sec:introduction:problem_statement}
 % In this section, the problems with single-link tunnel will be presented.
 % Combine links
-The most commonly used technologies for communication in datacenter and \ac{HPC} environment are Ethernet and \ac{infinibandpage} (\Cref{fig:introduction:Interconnect_Technologies_500_supercomp}), which currently offer 100-200Gb/s bandwidth per line \cite{ethernet_roadmap}\cite{infiniband_roadmap}.
+The most commonly used technologies for communication in data center and \ac{HPC} environment are Ethernet and \ac{infinibandpage} (\Cref{fig:introduction:Interconnect_Technologies_500_supercomp}), which currently offer 100-200Gb/s bandwidth per line \cite{ethernet_roadmap}\cite{infiniband_roadmap}.
 These kind of bandwidth between computers (or inter-system) are nonetheless impressive, yet not comparable to the system's internal connection, i.e inter-chiplet bridge \textit{Infinity Fabric} used in AMD's Zeppelin SoC provides 256GB/s in-package bandwidth \cite{burd_zeppelin_2019}, and up to 800GB/s connection in GPUs peer-to-peer test \cite{amd_infinity_architecture}.
 This means even when invested in the current latest networking hardware, the connection between computer instances might be the bottleneck for certain applications that require distributed computation, for example large \ac{AI} or simulation model.
 In this case, a multipath tunnel can hide hide the multipath details of merging multiple links from the applications, effectively scales up the network capacity horizontally.
-The tunnel thus allow datacenter usage benefits from having larger combined bandwidth using current technology, but also is a necessary tool to overcome eventual physical and economical limitation in the future.
+The tunnel thus allow data center usage benefits from having larger combined bandwidth using current technology, but also is a necessary tool to overcome eventual physical and economical limitation in the future.
 For less demanding usages, aggregation is an affordable method to build fast connection from available hardware \todo{improve}.
 
 % Reliability
@@ -144,8 +144,8 @@ Generally, the tunnel implementation can be useful for the following scenarios:
 
 Although we hope the project's outcome can contribute to the general understanding of software based solution for high performance networking field, we seek opportunity to integrate the tunnel into the next generation telecommunication system. We found 2 potential improvements according to our research: \todo{improve the following text}
 \begin{itemize}
-    \item N6 connection between UPF (also N9 i.e between UPF-E and UPF-C) and Data network: enhanced by prioritized, flow-aware, high bandwidth multipath tunnel. To meet differentiated SLA requirements for latency, bandwidth and reliability, UPF needs to be deployed at different positions including central DC, regional DC, edge DC and campus DC. MTX can help saturating physical links to support large number of UEs. XDP technology is claimed to be able to saturate 100Gbit line on 1 modern CPU core. Software-enhanced-links is a cost-effective way to ensure coping with peak usage while waiting for modern technology to mature. This works by combining physical connection into logical tunnel for applications running on top.
-    \item 5G user plane (back-haul N3 between gNodeB-UPF, mid-haul between gNodeB-CU and -DU) relied on message-based protocol \ac{gptu} (the character "U" means "user data tunneling") to relay traffic in tunnels - or flows within a PDP session. We see the opportunity to build GPT-U protocol using our performant Tunnel, enhanced by multiple path.
+    \item N6 connection between UPF (also N9 i.e between UPF-E and UPF-C) and Data network: enhanced by prioritized, flow-aware, high bandwidth multipath tunnel. To meet differentiated SLA requirements for latency, bandwidth and reliability, UPF needs to be deployed at different positions including central DC, regional DC, edge DC and campus DC. MTX can help saturating physical links coup with support large number of UEs.
+    \item 5G user plane (back-haul N3 between gNodeB-UPF, mid-haul between gNodeB-CU and -DU) relied on message-based protocol \ac{gptu} (the character "U" means "user data tunneling") to relay traffic in tunnels - or flows within a PDP session.
 \end{itemize}
 
 We also identified reports regarding performance issues in the \ac{UPF} of \ac{o5gs} - a well-known 5G core implementation that the AV team at the TU Berlin is currently using in their 5G test bed. Contributors have proposed employing \ac{dpdkpage} and exploring lower-level approaches to minimize overhead \cite{open5gs_github_dpdk}\cite{open5gs_github_udp_perf_cap}, as the current implementation limits the TUN interface bandwidth to 1Gbit. We believe that through thorough analysis, this presents an opportunity for us to make a valuable contribution to the \ac{o5gs} project with our MTX tunnel.
