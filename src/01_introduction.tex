@@ -142,11 +142,13 @@ Generally, the tunnel implementation can be useful for the following scenarios:
     \item 5G back-haul and middle-haul: power the forwarding/relaying mechanism (\ac{UPF}, gNodeB's UD-CU). Enhance existing GTP-U protocol with multipath, flow-aware capability.
 \end{itemize}
 
-Although we hope the project's outcome can contribute to the general understanding of software based solution for high performance networking field, we seek opportunity to integrate the tunnel into the next generation telecommunication system. We found 2 potential improvements according to our research: \todo{improve text}
+Although we hope the project's outcome can contribute to the general understanding of software based solution for high performance networking field, we seek opportunity to integrate the tunnel into the next generation telecommunication system. We found 2 potential improvements according to our research: \todo{improve the following text}
 \begin{itemize}
     \item N6 connection between UPF (also N9 i.e between UPF-E and UPF-C) and Data network: enhanced by prioritized, flow-aware, high bandwidth multipath tunnel. To meet differentiated SLA requirements for latency, bandwidth and reliability, UPF needs to be deployed at different positions including central DC, regional DC, edge DC and campus DC. MTX can help saturating physical links to support large number of UEs. XDP technology is claimed to be able to saturate 100Gbit line on 1 modern CPU core. Software-enhanced-links is a cost-effective way to ensure coping with peak usage while waiting for modern technology to mature. This works by combining physical connection into logical tunnel for applications running on top.
     \item 5G user plane (back-haul N3 between gNodeB-UPF, mid-haul between gNodeB-CU and -DU) relied on message-based protocol \ac{gptu} (the character "U" means "user data tunneling") to relay traffic in tunnels - or flows within a PDP session. We see the opportunity to build GPT-U protocol using our performant Tunnel, enhanced by multiple path.
 \end{itemize}
+
+We also identified reports regarding performance issues in the \ac{UPF} of \ac{o5gs} - a well-known 5G core implementation that the AV team at the TU Berlin is currently using in their 5G test bed. Contributors have proposed employing \ac{dpdkpage} and exploring lower-level approaches to minimize overhead \cite{open5gs_github_dpdk}\cite{open5gs_github_udp_perf_cap}, as the current implementation limits the TUN interface bandwidth to 1Gbit. We believe that through thorough analysis, this presents an opportunity for us to make a valuable contribution to the \ac{o5gs} project with our MTX tunnel.
 
 \begin{figure}[H]
 	\centering
