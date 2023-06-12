@@ -25,6 +25,13 @@ Using the latest native Linux's technology, the implementation is expected to pe
 Support for multiple connection links offers reliability, large raw-bandwidth and a rich set of configuration to applications binding to the tunnel, makes it suitable for high demand use-cases such as industry, data center, telecommunication hub. 
 In this document, an enhancement for the 5G's \ac{gptu} protocol \todo{cut this} with \ac{MTX} library will be investigated. \ac{gptu} is the protocol that helps UPF and gNodeB functions of a 5G system communicating, which demands both bandwidth and stability and therefore is a suitable match for a \ac{MTX} demonstration.
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{resources/images/3gpp_5g_data_plane_protocol.png}
+	\caption{3GPPP's 5G Data Plane protocol stack \cite{3gpp_5g_system_overview}}
+    \label{fig:introduction:3gpp_5g_data_plane_protocol}
+\end{figure}
+
 
 \section{Problem Statement}\index{Requirements}\label{sec:introduction:problem_statement}
 % In this section, the problems with single-link tunnel will be presented.
@@ -119,16 +126,35 @@ To address this, using a native and more simple Linux's technology - \ac{xdppage
 % \todomid{write about the research scope --- \Cref{fig:intro:a,fig:intro:b,fig:intro:c}}
 With an implementation and a thesis documentation for the multipath tunnel as the desire outcome of the project , we define the scope of the project as followed:
 \begin{itemize}
-    \item Implementation: the tunnel will be implemented in C/C++, uses \ac{xdppage} sockets as the packet transport layer. The tunnel shall be able to exchange data over multiple \ac{NIC}s and treat each packet differently based on defined configuration (stream based/flow based). 
-    \item Demonstration: used to test and present the features of the tunnel. At this stage, we choose \ac{gptu} 
-    \item System load: Tunneling process costs CPU time and RAM usage.
+    \item Scope of research: this research is limited to investigating a tunnel implementation based on \ac{xdppage} technology that employs multipath and flow-aware concepts. A functional tunnel is expected to be built in 3 months. From there, more complex features will be added along with a test application to run on top the tunnel for testing and demonstrating purposes. In the course of building process, this initiated documentation will be updated until the project reaches its time limitation (6 months in total). Although the tunnel library will be a general purpose framework that can be deployed for any application, it is intended to be tested with 5G's software stack in mind.
+    \item Foreseeable tasks: researching the project idea, building multipath protocol, implementing the tunnel, testing and demonstrating tasks are planed. 
+    \item Implementation: the tunnel will be implemented in C/C++, uses \ac{xdppage} sockets as the packet transport layer. The tunnel shall be able to exchange data over multiple \ac{NIC}s and treat each packet differently based on defined configuration (stream based/flow based). More will be discussed in the next section.
+    \item Demonstration: used to test and present the features of the tunnel. At this stage, a simplified version of \ac{gptu} protocol has been chosen to run on top of the tunnel. \ac{gptu} is the communication protocol responsible for establishing data exchanging channels in 5G's \ac{UPF} and gNodeB. These channels (or tunnels) handle streams of data, each has \ac{QoS} identifier with different characteristics and priority. This makes the protocol a good match for tunnel demonstration purpose.
 \end{itemize}
 
 
-
-
-
 \section{Objectives and Contributions}
+The research is limited to investigating the multipath concept with a new technology. 
+Generally, the tunnel implementation can be useful for the following scenarios:
+\begin{itemize}
+    \item High bandwidth connection for High performance computing, servers, data center.
+    \item High reliability for critical application by using backup links for tunnel or replicate packets.
+    \item 5G back-haul and middle-haul: power the forwarding/relaying mechanism (\ac{UPF}, gNodeB's UD-CU). Enhance existing GTP-U protocol with multipath, flow-aware capability.
+\end{itemize}
+
+Although we hope the project's outcome can contribute to the general understanding of software based solution for high performance networking field, we seek opportunity to integrate the tunnel into the next generation telecommunication system. We found 2 potential improvements according to our research: \todo{improve text}
+\begin{itemize}
+    \item N6 connection between UPF (also N9 i.e between UPF-E and UPF-C) and Data network: enhanced by prioritized, flow-aware, high bandwidth multipath tunnel. To meet differentiated SLA requirements for latency, bandwidth and reliability, UPF needs to be deployed at different positions including central DC, regional DC, edge DC and campus DC. MTX can help saturating physical links to support large number of UEs. XDP technology is claimed to be able to saturate 100Gbit line on 1 modern CPU core. Software-enhanced-links is a cost-effective way to ensure coping with peak usage while waiting for modern technology to mature. This works by combining physical connection into logical tunnel for applications running on top.
+    \item 5G user plane (back-haul N3 between gNodeB-UPF, mid-haul between gNodeB-CU and -DU) relied on message-based protocol \ac{gptu} (the character "U" means "user data tunneling") to relay traffic in tunnels - or flows within a PDP session. We see the opportunity to build GPT-U protocol using our performant Tunnel, enhanced by multiple path.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{resources/images/3gpp_5g_system_overview.png}
+	\caption{3GPP's 5G System Overview \cite{3gpp_5g_system_overview}}
+    \label{fig:introduction:3gpp_5g_system_overview}
+\end{figure}
+
 
 % \begin{figure}[htbp]
 %     \centering
