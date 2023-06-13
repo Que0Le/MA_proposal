@@ -28,7 +28,7 @@ The traffic can also be encrypted to add an extra layer of protection while acce
 There are several widely recognized VPN protocols, including WireGuard, OpenVPN, IPsec, Cisco AnyConnect VPN, L2TP/IPsec, SSTP (Secure Socket Tunneling Protocol), ... each embodies its unique philosophy, background, and intended field of application.
 
 
-\section{Multipath Connection}\index{Multipath Connection}
+\section{Multipath Connection}\index{Multipath Connection}\label{sec:related_work:mp_connection}
 Our primary emphasis is on establishing a connection between two points, irrespective of the number of physical transportation links.
 % We will explore various protocols that implement the concept and make comparisons with our approach.
 There are 2 approaches to utilize multiple links: managing multiple underlying connections created by existing protocols (\ac{MPTCP} with TCP), and creating a new multipath protocol \ac{SCTP}.
@@ -37,7 +37,7 @@ The tunnel comprises two primary logical components: the control plane and the t
 The control plane handles session management, congestion control overhead, and other administrative tasks, enabling the transport plane to be constructed with wrappers over UDP sockets.
 Unlike serving solely the socket caller, the multipath tunnel is designed to offer connection and flow management for multiple applications, enabling centralized resource management and scheduling.
 
-\subsection{Multipath TCP}
+\subsection{Multipath TCP}\label{sec:related_work:mp_connection:MPTCP}
 % MultiPath TCP (MPTCP) is an effort towards enabling the simultaneous use of several IP-addresses/interfaces by a modification of TCP that presents a regular TCP interface to applications, while in fact spreading data across several subflows. Benefits of this include better resource utilization, better throughput and smoother reaction to failures. 
 
 \ac{MPTCP} is is a major extension to TCP to decoupling TCP from the transport layer by utilizing multiple sub flows, which are underlying TCP connections \cite{Bonaventure_mptcp_decoupling}.
@@ -51,11 +51,11 @@ The author argues that although maintaining two radios simultaneously consumes m
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1.0\textwidth]{resources/images/3G_WiFi_Handover_with_Multipath_TCP.PNG}
-	\caption{3G/WiFi Handover with Multipath TCP \cite{paasch_multipath_2014}. The \ac{MPTCP} connection persists despite of WiFi and 3G's unreliable connections. A weak WiFi signal can be indicative of the device moving beyond the coverage range of the router. The command \textit{REXMIT} changes the time-out value for each packet which is used for retransmitting packet}
+	\caption{3G/WiFi Handover with Multipath TCP \cite{paasch_multipath_2014}. The MPTCP connection persists despite of WiFi and 3G's unreliable connections. A weak WiFi signal can be indicative of the device moving beyond the coverage range of the router. The command \textit{REXMIT} changes the time-out value for each packet which is used for retransmitting packet.}
     \label{fig:related_work:3G_WiFi_Handover_with_Multipath_TCP}
 \end{figure}
 
-\subsection{Stream Control Transmission Protocol}
+\subsection{Stream Control Transmission Protocol}\label{sec:related_work:mp_connection:SCTP}
 \ac{SCTP} introduces multiple addresses to the transport layer, which serves as failover and simultaneous underlying connection.
 Unlike \ac{MPTCP}, existing internet's infrastructure such as firewalls, routers were not designed to handle \ac{SCTP}'s packets and thus severely limits usage of the protocol \cite{paasch_multipath_2014}. 
 Notably, \ac{SCTP} is used in 5G core design for transmitting messages in Control plane.
@@ -66,6 +66,24 @@ Notably, \ac{SCTP} is used in 5G core design for transmitting messages in Contro
 	\caption{Control Plane protocol stack between the UE, the 5G-AN, the AMF and the SMF \cite{3gpp_5g_system_overview}}
     \label{fig:related_work:3gpp_5g_part_of_control_plane_protocol}
 \end{figure}
+
+
+\section{5G Deployment}\index{5G Deployment}
+5G services and functions are designed to be deployed in containers and virtual machines, often on server-grade general purpose computers.
+
+These components are categorized into two groups: the Control plane and the Data plane.
+
+As mentioned in \Cref{sec:related_work:mp_connection:SCTP}, \ac{SCTP} protocol with multipath support is used in control plane.
+The Data plane relies on \ac{gptu} protocol with \ac{UDP} as the transport protocol to exchange high volume of data between \ac{UPF} and \ac{DN}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{resources/images/Non_Roaming_5G_System_Architecture_in_reference_point_representation.png}
+	\caption{Non-Roaming 5G System Architecture in reference point representation \cite{3gpp_5g_system_architect_spec_release_18}}
+    \label{fig:related_work:Non_Roaming_5G_System_Architecture_in_reference_point_representation}
+\end{figure}
+
+
 
 % \begin{figure}[H]
 %     \centering
