@@ -30,14 +30,44 @@ Many tunnel protocols exist for different purposes: IPv4/IPv6 tunnels to enable 
 % \ac{VPN} is commonly used for accessing private network remotely (i.e, access university's private network from home network) and masking the network so traffic appears to be originated from VPN server (to bypass firewall or securely access network over untrusted connection like coffee shop's public WLAN)
 \ac{VPN}s are frequently utilized to remotely access a private network, such as connecting to university's network from home. 
 It also functions to conceal the origin of network traffic by making it appear as if it originates from the VPN server, which is useful for bypassing firewalls or restrictions applied by local network providers.
-The traffic can also be encrypted to add an extra layer of protection while accessing networks over untrusted connections, like public WLANs found in coffee shops.
+The traffic can also be encrypted to add an extra layer of protection while accessing networks over untrusted connections, like public WLAN provided by coffee shops.
+There are several widely recognized VPN protocols, including WireGuard, OpenVPN, IPsec, Cisco AnyConnect VPN, L2TP/IPsec, SSTP (Secure Socket Tunneling Protocol), ... each embodies its unique philosophy, background, and intended field of application.
 
-\ac{ovpnpage}
 
-Some well known VPN protocols can be named wireguard, openvpn and ipsec. 
-
+\section{Multipath Connection}\index{Multipath Connection}
 Our primary emphasis is on establishing a connection between two points, irrespective of the number of physical transportation links.
+We will explore various protocols that implement the concept and make comparisons with our approach.
 
+\subsection{Multipath TCP}
+% MultiPath TCP (MPTCP) is an effort towards enabling the simultaneous use of several IP-addresses/interfaces by a modification of TCP that presents a regular TCP interface to applications, while in fact spreading data across several subflows. Benefits of this include better resource utilization, better throughput and smoother reaction to failures. 
+\ac{MPTCP} is is a major extension to TCP to decoupling TCP from the transport layer by utilizing multiple sub flows, which are underlying TCP connections \cite{Bonaventure_mptcp_decoupling}.
+% \ac{MPTCP} improves mobile hand-over capability, helps maintaining TCP session while user-equipment moves. 
+% For example, smartphone keeps using both LTE and wifi for TCP session and predict which line to route most traffic through (by monitoring the radio signal strength we can tell if wifi connection is about to break, or if user is entering a building and lose cellular signal). Author argues that maintaining 2 radios simultaneously is costly in term of power, but might reduce time to start new connection and transmitting data \cite{paasch_multipath_2014}.
+The protocol is showcased in both mobile and data center environments, serving distinct objectives. 
+In addition to enhancing data center performance by employing \ac{MPTCP}'s distributed load-balancing across multiple paths, the protocol also provides redundancy and effective congestion management capabilities \cite{raiciu_improving_nodate}.
+In the context of mobile hand-over capability, \ac{MPTCP} enhances the ability to maintain TCP sessions while the user equipment constantly moves. 
+For instance, a smartphone can continue utilizing both LTE and Wi-Fi connections for a TCP session and predict the optimal route for transmitting most of the traffic. 
+By monitoring the radio signal strength, it becomes possible to anticipate potential disruptions in the Wi-Fi connection or when a user enters a building and encounters a loss of cellular signal. 
+The author argues that although maintaining two radios simultaneously consumes more power, it can potentially reduce the time required to establish new connections and transmit data \cite{paasch_multipath_2014}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{resources/images/3G_WiFi_Handover_with_Multipath_TCP.PNG}
+	\caption{3G/WiFi Handover with Multipath TCP \cite{paasch_multipath_2014}. The \ac{MPTCP} connection persists despite of WiFi and 3G's unreliable connections. Weak WiFi signal can be interpreted as moving out of router's coverage. The command \textit{REXMIT} changes the time-out value for each packet which is used for retransmitting packet}
+    \label{fig:related_work:3G_WiFi_Handover_with_Multipath_TCP}
+\end{figure}
+
+\subsection{Stream Control Transmission Protocol}
+\ac{SCTP} introduces multiple addresses to the transport layer, which serves as failover and simultaneous underlying connection.
+Unlike \ac{MPTCP}, existing internet's infrastructure such as firewalls, routers were not designed to handle \ac{SCTP}'s packets and thus severely limits usage of the protocol \cite{paasch_multipath_2014}. 
+Notably, \ac{SCTP} is used in 5G core design for transmitting messages in Control plane.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{resources/images/3gpp_5g_part_of_control_plane_protocol.png}
+	\caption{Control Plane protocol stack between the UE, the 5G-AN, the AMF and the SMF \cite{3gpp_5g_system_overview}}
+    \label{fig:related_work:3gpp_5g_part_of_control_plane_protocol}
+\end{figure}
 
 % \begin{figure}[H]
 %     \centering
