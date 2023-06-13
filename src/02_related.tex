@@ -10,16 +10,11 @@
 % \sidenote{Overview}
 % \todomid{write}
 
-Multipath is not a new concept. In this section we will visit notable existing multipath protocols, their characteristics and how is our concept differ from them.
-Apart from that, we also discuss about future use case for our \ac{MTX} as well as the current solutions and 
-technologies being used.
-Finally, a quick dive into 5G system design with Data Plane as the main focus will explain our plan to demonstrate the multipath tunnel with \ac{gptu} protocol.
+The concept of multipath is well-established, and in this section, we will explore notable existing multipath protocols, their characteristics, and highlight the unique aspects of our concept. 
+Additionally, we will discuss future use cases for our \ac{MTX} and examine current solutions and technologies being utilized. 
+Finally, we will take a closer look at the design of the 5G system, with a specific focus on the Data Plane, to explain our plan for showcasing the multipath tunnel using the \ac{gptu} protocol.
 
 \section{Tunneling}\index{Tunneling}
-% The term tunnel is borrowed from the real world where it described a confined physical transportation route that was built to direct traffic from A to B isolately from the terrain outside of the tunnel. 
-% The physical tunnel is often dug deep down in the earth to bypass mountains, rivers, ocean channels ...
-% In networking, from the application point of view, the tunnel is a direct network path to access another network from the network it is currently connected to.
-% From the infrastructure perspective, the tunnel is an abstraction layer that omits the real traffic routing from the application and isolates the tunnel's traffic from public traffic, often by encapsulating application's data packet in tunnel's packet and extract the original data on the other end.
 \todo{these following are my words, but do I need cite here?}
 The concept of a tunnel draws inspiration from its real-world counterpart, which refers to a confined pathway constructed to direct transportation between two points, separate from the surrounding terrain. 
 In the physical sense, tunnels are often excavated deep beneath the earth's surface to bypass obstacles like mountains, rivers, or ocean channels.
@@ -27,7 +22,6 @@ In the realm of networking, a tunnel can be perceived as a direct network pathwa
 From an infrastructure standpoint, a tunnel serves as an abstraction layer that abstracts the actual traffic routing from the application and isolates the tunnel's traffic from public network traffic. 
 This is typically achieved by encapsulating the application's data packets within the tunnel's packets, and then extracting the original data at the other end of the tunnel.
 Many tunnel protocols exist for different purposes: IPv4/IPv6 tunnels to enable compatibility between exclusive networks \cite{rfc4380_Teredo_ipv6_tunnel_udp}, Secure Shell (SSH) - tunnel for remote access and data transfer \cite{rfc4251_ssh_protocol}, and \ac{VPN} tunneling - used for access other network from another network. 
-% \ac{VPN} is commonly used for accessing private network remotely (i.e, access university's private network from home network) and masking the network so traffic appears to be originated from VPN server (to bypass firewall or securely access network over untrusted connection like coffee shop's public WLAN)
 \ac{VPN}s are frequently utilized to remotely access a private network, such as connecting to university's network from home. 
 It also functions to conceal the origin of network traffic by making it appear as if it originates from the VPN server, which is useful for bypassing firewalls or restrictions applied by local network providers.
 The traffic can also be encrypted to add an extra layer of protection while accessing networks over untrusted connections, like public WLAN provided by coffee shops.
@@ -36,16 +30,20 @@ There are several widely recognized VPN protocols, including WireGuard, OpenVPN,
 
 \section{Multipath Connection}\index{Multipath Connection}
 Our primary emphasis is on establishing a connection between two points, irrespective of the number of physical transportation links.
-We will explore various protocols that implement the concept and make comparisons with our approach.
+% We will explore various protocols that implement the concept and make comparisons with our approach.
+There are 2 approaches to utilize multiple links: managing multiple underlying connections created by existing protocols (\ac{MPTCP} with TCP), and creating a new multipath protocol \ac{SCTP}.
+Drawing inspiration from these protocols, our design of \ac{MTX} adopts a hybrid approach: a tunnel that transfers data over multiple UDP connections instead of maintaining TCP sessions. 
+The tunnel comprises two primary logical components: the control plane and the transport plane. 
+The control plane handles session management, congestion control overhead, and other administrative tasks, enabling the transport plane to be constructed with wrappers over UDP sockets.
+Unlike serving solely the socket caller, the multipath tunnel is designed to offer connection and flow management for multiple applications, enabling centralized resource management and scheduling.
 
 \subsection{Multipath TCP}
 % MultiPath TCP (MPTCP) is an effort towards enabling the simultaneous use of several IP-addresses/interfaces by a modification of TCP that presents a regular TCP interface to applications, while in fact spreading data across several subflows. Benefits of this include better resource utilization, better throughput and smoother reaction to failures. 
+
 \ac{MPTCP} is is a major extension to TCP to decoupling TCP from the transport layer by utilizing multiple sub flows, which are underlying TCP connections \cite{Bonaventure_mptcp_decoupling}.
-% \ac{MPTCP} improves mobile hand-over capability, helps maintaining TCP session while user-equipment moves. 
-% For example, smartphone keeps using both LTE and wifi for TCP session and predict which line to route most traffic through (by monitoring the radio signal strength we can tell if wifi connection is about to break, or if user is entering a building and lose cellular signal). Author argues that maintaining 2 radios simultaneously is costly in term of power, but might reduce time to start new connection and transmitting data \cite{paasch_multipath_2014}.
 The protocol is showcased in both mobile and data center environments, serving distinct objectives. 
 In addition to enhancing data center performance by employing \ac{MPTCP}'s distributed load-balancing across multiple paths, the protocol also provides redundancy and effective congestion management capabilities \cite{raiciu_improving_nodate}.
-In the context of mobile hand-over capability, \ac{MPTCP} enhances the ability to maintain TCP sessions while the user equipment constantly moves. 
+In the context of mobile hand-over capability, \ac{MPTCP} enhances the ability to maintain TCP sessions while the user equipment moves continuously. 
 For instance, a smartphone can continue utilizing both LTE and Wi-Fi connections for a TCP session and predict the optimal route for transmitting most of the traffic. 
 By monitoring the radio signal strength, it becomes possible to anticipate potential disruptions in the Wi-Fi connection or when a user enters a building and encounters a loss of cellular signal. 
 The author argues that although maintaining two radios simultaneously consumes more power, it can potentially reduce the time required to establish new connections and transmit data \cite{paasch_multipath_2014}.
@@ -53,7 +51,7 @@ The author argues that although maintaining two radios simultaneously consumes m
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1.0\textwidth]{resources/images/3G_WiFi_Handover_with_Multipath_TCP.PNG}
-	\caption{3G/WiFi Handover with Multipath TCP \cite{paasch_multipath_2014}. The \ac{MPTCP} connection persists despite of WiFi and 3G's unreliable connections. Weak WiFi signal can be interpreted as moving out of router's coverage. The command \textit{REXMIT} changes the time-out value for each packet which is used for retransmitting packet}
+	\caption{3G/WiFi Handover with Multipath TCP \cite{paasch_multipath_2014}. The \ac{MPTCP} connection persists despite of WiFi and 3G's unreliable connections. A weak WiFi signal can be indicative of the device moving beyond the coverage range of the router. The command \textit{REXMIT} changes the time-out value for each packet which is used for retransmitting packet}
     \label{fig:related_work:3G_WiFi_Handover_with_Multipath_TCP}
 \end{figure}
 
