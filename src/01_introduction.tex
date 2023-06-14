@@ -59,8 +59,8 @@ Therefore, it is an appropriate match for demonstrating the capabilities of the 
 % In this case, a multipath tunnel can hide hide the multipath details of merging multiple links from the applications, effectively scales up the network capacity horizontally.
 % The tunnel thus allow data center usage benefits from having larger combined bandwidth using current technology, but also is a necessary tool to overcome eventual physical and economical limitation in the future.
 % For less demanding usages, aggregation is an affordable method to build fast connection from available hardware \todo{improve}.
-Ethernet and InfiniBand are the most prevalent communication technologies in data centers and \ac{HPC} environments. 
-Currently, these technologies provide bandwidths of 100-200Gb/s per line \cite{ethernet_roadmap}\cite{infiniband_roadmap} (\Cref{fig:introduction:Interconnect_Technologies_500_supercomp}). 
+Ethernet and InfiniBand are the most prevalent communication technologies in data centers and \ac{HPC} environments (\Cref{fig:introduction:Interconnect_Technologies_500_supercomp}). 
+Currently, these technologies provide bandwidths of 100-200Gb/s per line \cite{ethernet_roadmap}\cite{infiniband_roadmap}. 
 While this bandwidth is impressive for inter-system communication, it cannot match the internal connections within a system. 
 For instance, AMD's "Infinity Fabric" bridge offers an in-package bandwidth of 256GB/s on Zeppelin SoC family \cite{burd_zeppelin_2019}, and up to 800GB/s in peer-to-peer tests between GPUs using more bands \cite{amd_infinity_architecture}.
 This indicates that even with the latest networking hardware, the connection between computer instances can become a bottleneck for distributed data-intensive applications, for instance large \ac{AI} model or computer simulation. 
@@ -79,6 +79,7 @@ For less demanding use cases, aggregation presents an affordable method to build
 The reliability of a connection is closely tied to the failure probabilities of the individual links and nodes, which directly impacts service availability \cite{shooman_algorithms_1995}. 
 Additionally, \ac{QoS} parameters such as latency, peak throughput, and jitter play a crucial role \cite{gozdecki_quality_2003}.
 Depending on the use case, connection reliability can either serve as a \ac{QoS} measurement factor (e.g., for commercial network providers) or a strict requirement (e.g., for critical applications). 
+
 Generally, there are two non-exclusive strategies commonly employed to enhance connection reliability: strengthening individual links or incorporating redundancy.
 % Upgrading to more resilient, albeit costly, hardware links or implementing multiple failover lines can reduce the probability of connection failures. 
 While superior hardware can reduce the probability of connection failures and address many \ac{QoS} inadequacies, having multiple links or routes optimized for specific applications is often a more practical and cost-effective approach for operators, particularly when dealing with heterogeneous data traffic \cite{chen_overview_1998}.

@@ -70,20 +70,69 @@ Notably, \ac{SCTP} is used in 5G core design for transmitting messages in Contro
 
 \section{5G Deployment}\index{5G Deployment}
 5G services and functions are designed to be deployed in containers and virtual machines, often on server-grade general purpose computers.
-
-These components are categorized into two groups: the Control plane and the Data plane.
-
-As mentioned in \Cref{sec:related_work:mp_connection:SCTP}, \ac{SCTP} protocol with multipath support is used in control plane.
-The Data plane relies on \ac{gptu} protocol with \ac{UDP} as the transport protocol to exchange high volume of data between \ac{UPF} and \ac{DN}
+These components are categorized into two groups: the Control plane and the Data plane (\Cref{fig:related_work:Non_Roaming_5G_System_Architecture_in_reference_point_representation}).
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1.0\textwidth]{resources/images/Non_Roaming_5G_System_Architecture_in_reference_point_representation.png}
 	\caption{Non-Roaming 5G System Architecture in reference point representation \cite{3gpp_5g_system_architect_spec_release_18}}
-    \label{fig:related_work:Non_Roaming_5G_System_Architecture_in_reference_point_representation}
+	\label{fig:related_work:Non_Roaming_5G_System_Architecture_in_reference_point_representation}
 \end{figure}
 
+As mentioned in \Cref{sec:related_work:mp_connection:SCTP}, the control plane uses \ac{SCTP} protocol with multipath support for its internal communication.
+The Data plane relies on \ac{gptu} protocol with \ac{UDP} as the transport protocol to deliver high volume of data between \ac{UE} and \ac{DN} (see \Cref{fig:introduction:3gpp_5g_data_plane_protocol}), which require powerful processing power and high capable network link.
+According to \ac{3GPP}, an non-exhausted list of \ac{UPF}'s responsibility is Packet routing \& forwarding, Packet inspection, buffering, sending and forwarding \cite{3gpp_5g_system_architect_spec_release_18}.
+In order to meet the \ac{SLA} and \ac{QoS} requirements, the \ac{UPF} needs to be deployed in various locations, such as the edge (edge and campus), regional sites, and central data centers \cite{zte_upf_full_whitepaper}. 
+The size and form of each \ac{UPF} instance vary significantly depending on factors such as the number and size of downstream and upstream functions it manages and responds to, as depicted in \Cref{fig:related_work:Deployment_Requirements_of_Full_Scenario_UPF}.
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{resources/images/Deployment_Requirements_of_Full_Scenario_UPF.PNG}
+	\caption{ZTE's White Paper: Deployment Requirements of Full-Scenario UPF \cite{zte_upf_full_whitepaper}}
+    \label{fig:related_work:Deployment_Requirements_of_Full_Scenario_UPF}
+\end{figure}
+
+% Although no feature equivalent to multipath is built in the \ac{gptu} protocol, data plane's implementations come up with their own technology stack for high performance. 
+While the \ac{gptu} protocol does not have a built-in feature equivalent to multipath, vendors have developed their own data plane technology stack to achieve high performance.
+\ac{NEC} demonstrated its containerized \ac{UPF} solution's capability by handling 640Gbps bandwidth on 1 single 2x32 cores server \cite{nec_upf_whitepaper}.
+\ac{dpdkpage} library was used to forward the enormous data flows to the containers (\Cref{fig:related_work:640_nec_upf_system}).
+\ac{ZTE} offers hardware platforms and software stack that use a combination of \ac{dpdkpage}, \ac{sriov} and hardware acceleration technology to support a wide range of bandwidth capacity from 5Gbps to 200Gbps \cite{zte_upf_full_whitepaper}, and up to 462Gbps in a test scenario in cooperation with Intel \cite{zte_5g_core_upf_impl}.
+
+Our \ac{MTX} library is positioned as an alternative to packet handling components based on \ac{dpdkpage} and \ac{sriov}. 
+In the subsequent sections, we will introduce these two technologies and highlight the potential advantages offered by our solution.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{resources/images/640_nec_upf_system.PNG}
+	\caption{NEC's containerized UPF software (8 pods per server) on a platform configured with Linux and Kubernetes \cite{nec_upf_whitepaper}}
+    \label{fig:related_work:640_nec_upf_system}
+\end{figure}
+
+\subsection{Data Plane Development Kit}
+
+% DPDK (Data Plane Development Kit) is a library created by Intel's engineer Venky Venkatesan and is being maintained by Linux foundation, that consists of libraries to accelerate packet processing workloads. The library effectively dismouns the NIC and CPU cores from the kernel to built an very efficient and high througput data path. The library has been used in numerous project, namely pfSense, Open vSwitch/OpenStack, Intel's DDP and in 5G UPF implementations. Recently, DPDK teams proposed a QoS plugin enhancement on GTP-U packet stream level for UPF
+\ac{dpdkpage} is a library initially developed by Intel engineer Venky Venkatesan and currently maintained by the Linux Foundation. 
+It provides a solution that contains a collection of libraries, poll drivers and configuration designed to accelerate packet processing workloads. 
+By decoupling the NIC and CPU cores from the kernel, the library establishes a highly efficient and high-throughput data path, thus eliminates the overhead introduced by Linux kernel's network stack \cite{kourtis_enhancing_2015}. 
+\ac{dpdkpage} has been widely utilized in various projects, including pfSense, Open vSwitch/OpenStack, Intel's DDP, OpenFlow, and 5G UPF implementations \cite{intel_ddp_ethernet_800}\cite{pongracz_removing_2013}\cite{zte_5g_core_upf_impl}\cite{nec_upf_whitepaper}. 
+% Recently, the \ac{dpdkpage} team proposed a QoS plugin enhancement at the GTP-U packet stream level for UPF \cite{dpdk_upf_extension}.
+
+From a technical standpoint, \ac{dpdkpage} is a kernel-bypassing method to process network packets that can deliver packets to application in user space with very low latency.
+In addition, \ac{dpdkpage} offers a range of powerful features, including Crypto, DMA direct memory access, CUDA GPU utilization, and Machine Learning Device Driver \cite{dpdk_guide_page}. 
+However, implementing DPDK in small open-source projects may necessitate more extensive maintenance and configuration compared to utilizing an in-kernel alternative like \ac{xdppage} socket, which will be utilized to construct our MTX library.
+Unlike \ac{dpdkpage}, \ac{xdppage} socket has no monopoly on the \ac{NIC}, thus allows kernel to manage the connection and usage from other applications.
+% This reduce the task handle managing and monitoring for the \ac{NIC}s
+
+\subsection{Single Root I/O Virtualization}
+
+
+% \begin{figure}[H]
+% 	\centering
+% 	\includegraphics[width=1.0\textwidth]{resources/images/principle_for_classification_and__Plane_marking_for_QoS_Flows.PNG}
+% 	\caption{The principle for classification and User Plane marking for QoS Flows and mapping
+% 	to AN Resources \cite{3gpp_5g_system_architect_spec_release_18}}
+%     \label{fig:related_work:principle_for_classification_and__Plane_marking_for_QoS_Flows}
+% \end{figure}
 
 % \begin{figure}[H]
 %     \centering
