@@ -31,7 +31,7 @@ There are several widely recognized VPN protocols, including WireGuard, OpenVPN,
 \section{Multipath Connection}\index{Multipath Connection}\label{sec:related_work:mp_connection}
 Our primary emphasis is on establishing a connection between two points, irrespective of the number of physical transportation links.
 % We will explore various protocols that implement the concept and make comparisons with our approach.
-There are 2 approaches to utilize multiple links: managing multiple underlying connections created by existing protocols (\ac{MPTCP} with TCP), and creating a new multipath protocol \ac{SCTP}.
+There are 2 approaches to utilize multiple links: managing multiple underlying connections created by existing protocols (\ac{MPTCP} with TCP), and creating a new multipath protocol (\ac{SCTP}).
 Drawing inspiration from these protocols, our design of \ac{MTX} adopts a hybrid approach: a tunnel that transfers data over multiple UDP connections instead of maintaining TCP sessions. 
 The tunnel comprises two primary logical components: the control plane and the transport plane. 
 The control plane handles session management, congestion control overhead, and other administrative tasks, enabling the transport plane to be constructed with wrappers over UDP sockets.
@@ -51,7 +51,7 @@ The author argues that although maintaining two radios simultaneously consumes m
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1.0\textwidth]{resources/images/3G_WiFi_Handover_with_Multipath_TCP.PNG}
-	\caption{3G/WiFi Handover with Multipath TCP \cite{paasch_multipath_2014}. The MPTCP connection persists despite of WiFi and 3G's unreliable connections. A weak WiFi signal can be indicative of the device moving beyond the coverage range of the router. The command \textit{REXMIT} changes the time-out value for each packet which is used for retransmitting packet.}
+	\caption{3G/WiFi Handover with Multipath TCP \cite{paasch_multipath_2014}. The MPTCP connection (in violet) persists despite of WiFi and 3G's unreliable connections. A weak WiFi signal can be indicative of the device moving beyond the coverage range of the router. The command \textit{REXMIT} changes the time-out value for each packet which is used for retransmitting packet. This indicates the TCP connection was trying to retransmit over the weakening WiFi connection.}
     \label{fig:related_work:3G_WiFi_Handover_with_Multipath_TCP}
 \end{figure}
 
@@ -136,6 +136,42 @@ The \ac{MTX} is designed as a general-purpose multipath tunnel that functions on
     \label{fig:related_work:intel_sriov_Natively_and_Software_Shared}
 \end{figure}
 
+
+
+\section{5G Data Plane enhancement with MTX}\index{5G Data Plane enhancement with MTX}
+\label{sec:related_work:5g_dataplane_enhancement}
+\Cref{fig:related_work:5g_dp_enhancement} describes how data is moved between \ac{UE} and \ac{DN} based on 3GPP specification and various sources.
+A \ac{PDU} session is established to create a logical data path between \ac{UE} and \ac{UPF}.
+This \ac{PDU} logical session runs on top of several transporting protocol.
+Radio Bearer (RB) is data and control channel between UE and radio equipment. 
+\ac{eCPRI} connects front-haul network and moves user data, controlling and management data, and synchronization data flows between DU and RU \cite{eCPRI_spec}.
+\ac{gptu} connection - often called \textit{tunnel} - helps transferring user data between middle-haul and back-haul networks in UDP packets.
+Data in different categories receive forwarding treatment differently, depends on the priority, subscription, ... 
+This is managed by splitting the data into streams (called \ac{QoS} Flow, marked with QoS Flow Identification (QFI)), each is governed with different rule set (QoS rules).
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{resources/images/5g_dp_enhancement.PNG}
+	\caption{5G Data Plane overview. The MTX library will be used as the building block for the GPT-U enhancement, which bring multipath capability to the protocol. Raw MTX can also be used to help connecting UPF and DN over multiple links.}
+    \label{fig:related_work:5g_dp_enhancement}
+\end{figure}
+
+In actual deployed systems, \ac{gptu} tunnels are typically established and configured professionally on top of multiple links that are aggregated and managed by a software stack, for instance \ac{dpdkpage} and \ac{sriov}.
+These solutions involve costly software and hardware (powerful and specifically chosen hardware) that lack flexibility, which make them unattractive for research and testing usage.
+Open source implementations usually suffers from performance losses due to inefficiency, as noted in Open5GS discussion \cite{open5gs_github_dpdk}\cite{open5gs_github_udp_perf_cap}.
+
+Our goal is to tackle the performance and usability issues by exploring the development of a straightforward yet robust multipath tunnel capable of functioning in both physical and virtual environments. 
+To ensure ease of maintenance and facilitate compatibility with other protocols, we aim for a tunnel code base that remains simple and minimizes the need for extensive modifications, which is why \ac{xdppage} has been selected as the preferred transport method.
+For the testing phase, we have chosen the \ac{gptu} protocol due to its diverse range of requirements that can be supported by MTX, including flow-awareness, high throughput, low latency, and a comprehensive set of configuration options.
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{resources/images/gptu_header_and_gpdu_stack.PNG}
+	\caption{3GPP: GPT-U header and G-PDU Protocol Stack built on top of UDP/IP protocol \cite{3gpp_gptu}}
+    \label{fig:related_work:gptu_header_and_gpdu_stack}
+\end{figure}
 
 
 
