@@ -109,8 +109,6 @@ In the subsequent sections, we will introduce these two technologies and highlig
 \end{figure}
 
 \subsection{Data Plane Development Kit}
-
-% DPDK (Data Plane Development Kit) is a library created by Intel's engineer Venky Venkatesan and is being maintained by Linux foundation, that consists of libraries to accelerate packet processing workloads. The library effectively dismouns the NIC and CPU cores from the kernel to built an very efficient and high througput data path. The library has been used in numerous project, namely pfSense, Open vSwitch/OpenStack, Intel's DDP and in 5G UPF implementations. Recently, DPDK teams proposed a QoS plugin enhancement on GTP-U packet stream level for UPF
 \ac{dpdkpage} is a library initially developed by Intel engineer Venky Venkatesan and currently maintained by the Linux Foundation. 
 It provides a solution that contains a collection of libraries, poll drivers and configuration designed to accelerate packet processing workloads. 
 By decoupling the NIC and CPU cores from the kernel, the library establishes a highly efficient and high-throughput data path, thus eliminates the overhead introduced by Linux kernel's network stack \cite{kourtis_enhancing_2015}. 
@@ -119,11 +117,26 @@ By decoupling the NIC and CPU cores from the kernel, the library establishes a h
 
 From a technical standpoint, \ac{dpdkpage} is a kernel-bypassing method to process network packets that can deliver packets to application in user space with very low latency.
 In addition, \ac{dpdkpage} offers a range of powerful features, including Crypto, DMA direct memory access, CUDA GPU utilization, and Machine Learning Device Driver \cite{dpdk_guide_page}. 
-However, implementing DPDK in small open-source projects may necessitate more extensive maintenance and configuration compared to utilizing an in-kernel alternative like \ac{xdppage} socket, which will be utilized to construct our MTX library.
-Unlike \ac{dpdkpage}, \ac{xdppage} socket has no monopoly on the \ac{NIC}, thus allows kernel to manage the connection and usage from other applications.
-% This reduce the task handle managing and monitoring for the \ac{NIC}s
+\ac{dpdkpage} is however, not a networking stack and has no Layer-3 forward, IPsec, firewall features \cite{old_dpdk_page} and forces developers to maintain their own code base for such purposes.
+Therefore, using \ac{dpdkpage} in small open-source projects may necessitate more extensive maintenance and configuration compared to utilizing an in-kernel alternative like \ac{xdppage} socket, which will be utilized to construct our MTX library.
+Unlike \ac{dpdkpage}, \ac{xdppage} socket has no monopoly on the \ac{NIC}, thus allows the kernel to manage and share the hardware resource.
 
 \subsection{Single Root I/O Virtualization}
+\ac{sriov} is a \ac{PCIe} specification that allows a physical \ac{PCIe} device to be partitioned into logical devices which appear as multiple physical devices in the guest \ac{OS} \cite{ibm_sriov}\cite{vmware_sriov}. 
+By providing independent memory space, interrupts, and \ac{DMA} streams for each virtual machine, natively shared devices by \ac{sriov} achieve low latency and lower CPU utilization compared to virtual devices provided by traditional \ac{VMM}'s Virtual Switch or  I/O emulation layer (see \Cref{fig:related_work:intel_sriov_Natively_and_Software_Shared}) \cite{intel_sriov}.
+As the \ac{sriov} specification is developed by \ac{PCISIG}, the consortium responsible for the \ac{PCIe} standard, there is no risk of vendor lock-in or significantly hidden cost.
+A similar but less sophisticated method - namely \ac{PCIe} passthrough - to eliminates emulation overhead on I/O operation in hypervisor environment is completely disconnecting the \ac{PCIe} device from the host kernel and connecting it to the guest \ac{OS} instead, although this makes device sharing impossible.
+However, it is important to note that the \ac{sriov} specification is specifically designed for passing resources to and from a hypervisor environment, which is not conflict with our intended scenario.
+The \ac{MTX} is designed as a general-purpose multipath tunnel that functions on \ac{NIC}s, making \ac{sriov} technology the underlying infrastructure layer for enabling \ac{MTX}'s \ac{xdppage} sockets to operate on the native shared devices, similar to how \ac{ZTE} used \ac{sriov} in conjunction with \ac{dpdkpage} in their software stack \cite{zte_upf_full_whitepaper}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{resources/images/intel_sriov_Natively_and_Software_Shared.PNG}
+	\caption{Natively (3 virtual machines on the left) and Software Shared \cite{intel_sriov}. The function type \textit{Virtual Function} (VF) can access a limited set of Base Address Register (BAR) descriptors (which holds the address of mapped memory of the device, or so called configuration space) and other parameters compared to the type \textit{Physical Function}. VF is designed to provide only the resources necessary for data movement.}
+    \label{fig:related_work:intel_sriov_Natively_and_Software_Shared}
+\end{figure}
+
+
 
 
 % \begin{figure}[H]
