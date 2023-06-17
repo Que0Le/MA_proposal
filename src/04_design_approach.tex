@@ -2,12 +2,12 @@
 \chapter{Approach and Design}\label{sec:approach_design}\minitoc\vspace{.5cm}
 \index{Approach and Design}
 
-By employing AF_XDP sockets for the Receiver-Transmitter layer (RX-TX), we can achieve multipath tunneling that offers exceptional performance and grants complete control over raw IP packets before they enter the Linux network stack. 
+By employing AF\_XDP sockets for the Receiver-Transmitter layer (RX-TX), we can achieve multipath tunneling that offers exceptional performance and grants complete control over raw IP packets before they enter the Linux network stack. 
 Thanks to the secure design of the eBPF virtual machine architecture, this approach remains safer compared to utilizing kernel modules or kernel code used by Wireguard, OpenVPN, and IPsec, ...
 In this chapter, we will explore the concept and design of the tunnel by examining its intended features and components.
 
 \section{Multipath Tunnel using XDP socket}
-- A modern approach to system and network programming: performance, safe and free from legacy code thanks to eBPF-AF_XDP technology.
+- A modern approach to system and network programming: performance, safe and free from legacy code thanks to eBPF-AF\_XDP technology.
 - Almost certainly will heavily outperform any other user-space approach
 - Increase redundancy and connection reliability.
 - Possible improvement in latency
@@ -21,7 +21,7 @@ In this chapter, we will explore the concept and design of the tunnel by examini
 - Apart from that, we will also investigate the possibility to create a TUN/TAP interface as a intermediate communicate layer between the MTX tunnel and apps. This is a well-known practice used by many VPN programs to allow several apps to use the VPN connection. This way, applications can use the tunnel connection without modifying the source code.
 
 \section{AF\_XDP socket - eBPF}
-High throughput: kernel-bypass method such as DPDK and AF_XDP can easily saturate 100Gbit line per core on a modern CPU, with baseline packet drop per second of up to 43.5Mpps (million packets per second) and 24Mpps respectively compared to 4.8Mpps by Linux networking stack \CITE{hoiland_jorgensen_express_2018} \cite{intel_dpdk_perf}.
+High throughput: kernel-bypass method such as DPDK and AF\_XDP can easily saturate 100Gbit line per core on a modern CPU, with baseline packet drop per second of up to 43.5Mpps (million packets per second) and 24Mpps respectively compared to 4.8Mpps by Linux networking stack \cite{hoiland_jorgensen_express_2018} \cite{intel_dpdk_perf}.
 his provides us the opportunity to create a multi-hundreds Gbit connection (tunnel) using nothing more than just several available 40/100Gbit NIC.
 
 
