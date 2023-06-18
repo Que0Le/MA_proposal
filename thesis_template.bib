@@ -206,6 +206,43 @@ year = {2015}
 	url = {https://cdrdv2-public.intel.com/617015/617015_E810%20DDP%20TechGuide_Rev2.6.pdf},
 }
 
+@techreport{iovisor_page,
+	title = {{BPF Compiler Collection (BCC)}},
+	url = {https://github.com/iovisor/bcc},
+}
+
+@techreport{facebook_katran_ebpf_2018,
+	title = {Open-sourcing {Katran}, a scalable network load balancer},
+	url = {https://engineering.fb.com/2018/05/22/open-source/open-sourcing-katran-a-scalable-network-load-balancer/},
+	language = {en-US},
+	urldate = {2021-05-13},
+	journal = {Facebook Engineering},
+	month = may,
+	year = {2018},
+	keywords = {web},
+}
+
+@techreport{cilium_io_page,
+	title = {{eBPF-based Networking, Observability, and Security}},
+	url = {https://cilium.io//how-netflix-uses-ebpf-flow-logs-at-scale-for-network-insight-e3ea997dca96},
+}
+
+@techreport{alibaba_cloud_ebpf,
+	title = {How {Does} {Alibaba} {Cloud} {Build} {High}-{Performance} {Cloud}-{Native} {Pod} {Networks} in {Production} {Environments}?},
+	url = {https://www.alibabacloud.com/blog/how-does-alibaba-cloud-build-high-performance-cloud-native-pod-networks-in-production-environments_596590},
+	language = {en},
+	urldate = {2021-05-13},
+	journal = {Alibaba Cloud Community},
+	keywords = {web},
+}
+
+
+@incollection{netflix_network_insight,
+	title = {{How Netflix uses eBPF flow logs at scale for network insight}},
+	url = {https://netflixtechblog.com/how-netflix-uses-ebpf-flow-logs-at-scale-for-network-insight-e3ea997dca96},
+	keywords = {web},
+}
+
 @article{raiciu_improving_nodate,
 	author = {Raiciu, Costin and Barre, Sebastien and Pluntke, Christopher and Greenhalgh, Adam and Wischik, Damon and Handley, Mark},
 	title = {Improving Datacenter Performance and Robustness with Multipath TCP},
@@ -335,6 +372,42 @@ year = {2015}
 	pages = {40--51},
 }
 
+@article{karlsson_path_to_dpdk_speednodate,
+	title = {The {Path} to {DPDK} {Speeds} for {AF} {XDP}},
+	language = {en},
+	author = {Karlsson, Magnus and Topel, Bjorn},
+	url = {http://vger.kernel.org/lpc_net2018_talks/lpc18_paper_af_xdp_perf-v2.pdf},
+}
+
+
+@article{lwn_detect_kernel_mem_leak,
+	title = {Detecting kernel memory leaks [{LWN}.net]},
+	url = {https://lwn.net/Articles/187979/},
+	urldate = {2023-06-18},
+}
+
+@article{lwn_intro_ebpf,
+	title = {A thorough introduction to {eBPF} [{LWN}.net]},
+	url = {https://lwn.net/Articles/740157/},
+	urldate = {2023-06-18},
+}
+
+
+@inproceedings{McCanne_intro_bpf,
+	author = {McCanne, Steven and Jacobson, Van},
+	title = {The BSD Packet Filter: A New Architecture for User-Level Packet Capture},
+	year = {1993},
+	publisher = {USENIX Association},
+	address = {USA},
+	booktitle = {Proceedings of the USENIX Winter 1993 Conference Proceedings on USENIX Winter 1993 Conference Proceedings},
+	pages = {2},
+	numpages = {1},
+	location = {San Diego, California},
+	series = {USENIX'93},
+	url = {https://www.tcpdump.org/papers/bpf-usenix93.pdf},
+}
+
+
 @inproceedings{kourtis_enhancing_2015,
 	title = {Enhancing {VNF} performance by exploiting {SR}-{IOV} and {DPDK} packet processing acceleration},
 	doi = {10.1109/NFV-SDN.2015.7387409},
@@ -378,4 +451,19 @@ year = {2015}
 	month = dec,
 	year = {2018},
 	pages = {54--66},
+}
+
+
+@inproceedings{emamdoost_detecting_2021,
+	address = {Virtual},
+	title = {Detecting {Kernel} {Memory} {Leaks} in {Specialized} {Modules} with {Ownership} {Reasoning}},
+	isbn = {978-1-891562-66-2},
+	url = {https://www.ndss-symposium.org/wp-content/uploads/ndss2021_5B-4_24416_paper.pdf},
+	doi = {10.14722/ndss.2021.24416},
+	language = {en},
+	urldate = {2023-06-18},
+	booktitle = {Proceedings 2021 {Network} and {Distributed} {System} {Security} {Symposium}},
+	publisher = {Internet Society},
+	author = {Emamdoost, Navid and Wu, Qiushi and Lu, Kangjie and McCamant, Stephen},
+	year = {2021},
 }

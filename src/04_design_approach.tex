@@ -3,10 +3,14 @@
 \index{Approach and Design}
 
 By employing AF\_XDP sockets for the Receiver-Transmitter layer (RX-TX), we can achieve multipath tunneling that offers exceptional performance and grants complete control over raw IP packets before they enter the Linux network stack. 
-Thanks to the secure design of the eBPF virtual machine architecture, this approach remains safer compared to utilizing kernel modules or kernel code used by Wireguard, OpenVPN, and IPsec, ...
+Thanks to the secure design of the eBPF virtual machine architecture, this approach remains safer compared to utilizing kernel modules or kernel code used by Wireguard, OpenVPN, or IPsec.
 In this chapter, we will explore the concept and design of the tunnel by examining its intended features and components.
 
 \section{Multipath Tunnel using XDP socket}
+
+
+
+
 - A modern approach to system and network programming: performance, safe and free from legacy code thanks to eBPF-AF\_XDP technology.
 - Almost certainly will heavily outperform any other user-space approach
 - Increase redundancy and connection reliability.
@@ -21,6 +25,36 @@ In this chapter, we will explore the concept and design of the tunnel by examini
 - Apart from that, we will also investigate the possibility to create a TUN/TAP interface as a intermediate communicate layer between the MTX tunnel and apps. This is a well-known practice used by many VPN programs to allow several apps to use the VPN connection. This way, applications can use the tunnel connection without modifying the source code.
 
 \section{AF\_XDP socket - eBPF}
+Although running code in the kernel space reduces overhead originate from context switching and preemptive, it faces the risk of compromising the system through memory leak, crashing or malicious exploit \cite{lwn_detect_kernel_mem_leak} \cite{emamdoost_detecting_2021}.
+\ac{BPF} technology is a alternative tool to execute code in kernel space in a controlled environment.
+It was introduced in 1992 for \ac{BSD} OS and ported to Linux later. 
+Originated designed for network packet filtering, it has been since then extended and used for firewall, tracing, debugging purposes \cite{McCanne_intro_bpf} \cite{lwn_intro_ebpf} by tech giants: firewall, filter, load-balancer by Facebook \cite{facebook_katran_ebpf_2018}; monitoring and analyzing by Netflix \cite{netflix_network_insight}; security and observation by Cilium Project \cite{cilium_io_page}; cloud infrastructure by Alibaba \cite{alibaba_cloud_ebpf}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{resources/images/bcc_tracing_tools_2019.png}
+    \caption{A wide range of Linux eBPF-based tracing tools \cite{iovisor_page}.}\label{fig:approach_design:tracing_tools_linux}
+\end{figure}
+
+\ac{ebpf} - the descendant of \ac{BPF} technology - consisted of a \ac{ebpf} program (also called \textit{kernel program}), the \ac{ebpf} virtual machine provided by the kernel, and the attach code path.
+The \ac{ebpf} kernel program is written in a subset of the C programming language and compiled to \ac{ebpf} byte code.
+The 64 bit \ac{RISC}-based \ac{ebpf} virtual machine along with a verifier check the code safety and isolate the execution of the \ac{ebpf} kernel program.
+To get started, the kernel program is inserted to the desired code path in the kernel where it will be executed whenever the code path is traversed \cite{lwn_intro_ebpf}.
+
+\ac{xdppage} is a type of Linux socket that utilizes \ac{ebpf} to deliver incoming raw network packets arrived from a \ac{NIC} to user space with comparable performance to \ac{dpdkpage} \cite{karlsson_path_to_dpdk_speednodate}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{XDP_integration_with_the_Linux_network_stack.PNG}
+	\caption{XDP’s integration with the Linux network stack \cite{hoiland_jorgensen_express_2018}}\label{fig:approach_design:xdp_architecture}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{af_xdp_vs_dpdk_3_micro_benchmarks.PNG}
+	\caption{Comparing performance between AF XDP and DPDK \cite{karlsson_path_to_dpdk_speednodate}. The authors tested  rxdrop (dropping all arriving packets), txpush (pushing packets out a NIC) and l2fwd (Level-2-forwarding, replacing MAC address of incoming packets and pushing them out) scenarios.}\label{fig:approach_design:af_xdp_vs_dpdk_3_micro_benchmarks}
+\end{figure}
+
 High throughput: kernel-bypass method such as DPDK and AF\_XDP can easily saturate 100Gbit line per core on a modern CPU, with baseline packet drop per second of up to 43.5Mpps (million packets per second) and 24Mpps respectively compared to 4.8Mpps by Linux networking stack \cite{hoiland_jorgensen_express_2018} \cite{intel_dpdk_perf}.
 his provides us the opportunity to create a multi-hundreds Gbit connection (tunnel) using nothing more than just several available 40/100Gbit NIC.
 

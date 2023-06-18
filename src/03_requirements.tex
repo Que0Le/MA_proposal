@@ -2,6 +2,7 @@
 \chapter{Requirement Analysis}\label{sec:reqs}\minitoc\vspace{.5cm}
 \index{Requirements}
 
+% https://www.cs.fsu.edu/~lacher/courses/COP3331/rad.html
 \section{Introduction}
 The objective of this project is to conduct research and implement the concept of a multipath networking tunnel utilizing the \ac{xdppage} technology. The project aims to deliver a comprehensive thesis documentation along with a functional implementation, preferably in the form of a test program based on the \ac{MTX} tunnel designed as a programming library.
 This \ac{MTX} library will enable the establishment of a network tunnel between two machines, allowing traffic to flow simultaneously over multiple network links. 
@@ -48,8 +49,10 @@ We define the non-functional requirements for the \ac{MTX} library:
 
 \subsection{System models}
 Intended to be a general purpose multipath tunnel, \ac{MTX} is designed to be the wrapper around transport layer to abstract the multipath details.
-Callers interact with the tunnel through shared memory or a TUN\TAP interface. This will be discussed further.
+Callers interact with the tunnel through shared memory or a TUN/TAP interface. This will be discussed further.
 The library can be considered for application where reliability, high performance and ease of maintain requirements converge \todo{more}.
+\todo{System models describes the scenarios, use cases, object model, and dynamic models for the system. This section contains the complete functional specification, including mock-ups illustrating the user interface of the system and navigational paths representing the sequence of screens. The subsections Object model and Dynamic model are written during the Analysis activity.}
+
 
 % \begin{wrapfigure}{r}{0.2\textwidth}
 %     \centering
