@@ -25,6 +25,21 @@ In this chapter, we will explore the concept and design of the tunnel by examini
 - Apart from that, we will also investigate the possibility to create a TUN/TAP interface as a intermediate communicate layer between the MTX tunnel and apps. This is a well-known practice used by many VPN programs to allow several apps to use the VPN connection. This way, applications can use the tunnel connection without modifying the source code.
 
 \section{AF\_XDP socket - eBPF}
+The kernel serves as the core program of an operating system. 
+In a computer system, multiple processes run simultaneously, each carrying out its designated tasks. 
+However, these processes are receptive and have limited access to information.
+A process cannot initiate or terminate other processes, including itself. 
+It is isolated and unable to communicate directly with other processes or devices.
+It lacks knowledge about its runtime, when it can run or has to stop or the specific memory location it occupies, whether in RAM or swap.
+Conversely, the kernel acts as the housekeeper, managing the hardware resources of the computer and allocating them to all processes. 
+It facilitates the execution of processes, schedules their runtime slots, and mediates communication and events between processes and hardware.
+Moreover, the kernel takes on responsibilities such as memory management, providing a file system, establishing networking capabilities, and offering the system's \ac{API} \cite{kerrisk_linux_2010}.
+
+Linux's virtual memory is separated into kernel space and user space, which offers many advantages including increasing security and system's stability \cite{understanding_the_linux_kernel_bovet_cassetti}.
+On Linux, a task can be processed in 2 modes thanks to the CPU's hardware: kernel mode and user mode.
+The CPU can't access memory that is marked as being used in kernel space when it is running in user mode \cite{kerrisk_linux_2010}.
+Invisible to end user, the system switches between kernel mode and user mode very often:  \cite{Robert_linux_kernel_dev}.
+
 Although running code in the kernel space reduces overhead originate from context switching and preemptive, it faces the risk of compromising the system through memory leak, crashing or malicious exploit \cite{lwn_detect_kernel_mem_leak} \cite{emamdoost_detecting_2021}.
 \ac{BPF} technology is a alternative tool to execute code in kernel space in a controlled environment.
 It was introduced in 1992 for \ac{BSD} OS and ported to Linux later. 
