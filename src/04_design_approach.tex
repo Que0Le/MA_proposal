@@ -25,25 +25,45 @@ In this chapter, we will explore the concept and design of the tunnel by examini
 - Apart from that, we will also investigate the possibility to create a TUN/TAP interface as a intermediate communicate layer between the MTX tunnel and apps. This is a well-known practice used by many VPN programs to allow several apps to use the VPN connection. This way, applications can use the tunnel connection without modifying the source code.
 
 \section{AF\_XDP socket - eBPF}
-The kernel serves as the core program of an operating system. 
-In a computer system, multiple processes run simultaneously, each carrying out its designated tasks. 
-However, these processes are receptive and have limited access to information.
-A process cannot initiate or terminate other processes, including itself. 
-It is isolated and unable to communicate directly with other processes or devices.
-It lacks knowledge about its runtime, when it can run or has to stop or the specific memory location it occupies, whether in RAM or swap.
-Conversely, the kernel acts as the housekeeper, managing the hardware resources of the computer and allocating them to all processes. 
-It facilitates the execution of processes, schedules their runtime slots, and mediates communication and events between processes and hardware.
-Moreover, the kernel takes on responsibilities such as memory management, providing a file system, establishing networking capabilities, and offering the system's \ac{API} \cite{kerrisk_linux_2010}.
+\subsection{Introduction to eBPF and Linux's kernel}
+% The kernel serves as the core program of an operating system. 
+% In a computer system, multiple processes run simultaneously, each carrying out its designated tasks. 
+% However, these processes are receptive and have limited access to information.
+% A process cannot initiate or terminate other processes, including itself. 
+% It is isolated and unable to communicate directly with other processes or devices.
+% It lacks knowledge about its runtime, when it can run or has to stop or the specific memory location it occupies, whether in RAM or swap.
+% Conversely, the kernel acts as the housekeeper, managing the hardware resources of the computer and allocating them to all processes. 
+% It facilitates the execution of processes, schedules their runtime slots, and mediates communication and events between processes and hardware.
+% Moreover, the kernel takes on responsibilities such as memory management, providing a file system, establishing networking capabilities, and offering the system's \ac{API} 
+The kernel functions as the central program of an operating system, overseeing its core operations. 
+In a computer system, numerous processes execute concurrently, each fulfilling its assigned tasks. 
+However, these processes possess limited access to its surrounding information and are inherently passive.
+For instance, a process lacks the ability to initiate or terminate other processes, including itself. 
+It operates in a isolated virtual memory and lacks direct communication channels with other processes or devices. 
+Furthermore, it lacks awareness of its runtime availability, including when it can execute or must cease, as well as knowledge of its specific memory location, whether in RAM or swap.
+Conversely, the kernel assumes the role of a housekeeper, managing the hardware resources of the computer and allocating them among all processes. It facilitates process execution, schedules runtime slots, and mediates communication and events between processes and hardware components.
+In addition to these responsibilities, the kernel handles vital tasks such as memory management, providing a file system, establishing networking capabilities, and presenting the system's \ac{API} for programmatic access \cite{kerrisk_linux_2010}.
 
-Linux's virtual memory is separated into kernel space and user space, which offers many advantages including increasing security and system's stability \cite{understanding_the_linux_kernel_bovet_cassetti}.
-On Linux, a task can be processed in 2 modes thanks to the CPU's hardware: kernel mode and user mode.
-The CPU can't access memory that is marked as being used in kernel space when it is running in user mode \cite{kerrisk_linux_2010}.
-Invisible to end user, the system switches between kernel mode and user mode very often:  \cite{Robert_linux_kernel_dev}.
+% Linux's virtual memory is separated into kernel space and user space, which offers many advantages including increasing security and system's stability \cite{understanding_the_linux_kernel_bovet_cassetti}.
+Linux's virtual memory architecture divides the memory into two distinct spaces: kernel space and user space. This separation provides several advantages, such as enhancing system security and stability \cite{understanding_the_linux_kernel_bovet_cassetti}.
+% On Linux, a task can be processed in 2 modes: kernel mode and user mode.
+% The CPU can't access memory that is marked as being used in kernel space when it is running in user mode 
+In Linux, tasks can operate in two distinct modes: kernel mode and user mode. When running in user mode, the CPU is restricted from accessing memory allocated for kernel space \cite{kerrisk_linux_2010}.
+Invisible to end user, the system switches between kernel mode and user mode very often, usually when a system \ac{API} is involved or a resource needs to be accessed \cite{Robert_linux_kernel_dev}.
+% Although switching between modes is supported by the CPU, significant overhead is caused by switching context and translating memory address.
+% Running code purely in the kernel space could reduce such overhead and have better scheduling policy, however this faces the risk of compromising the system through memory leak, crashing or malicious exploit 
+While the CPU supports mode switching, there is a noticeable overhead associated with context switching and memory address translation. 
+Running code exclusively in the kernel space has the potential to reduce this overhead and improve scheduling policies. 
+However, such an approach carries inherent risks, including the possibility of system compromise due to memory leaks, crashes, or malicious exploits \cite{lwn_detect_kernel_mem_leak} \cite{emamdoost_detecting_2021}.
+% \ac{BPF} technology is a alternative tool to execute code in kernel space in a controlled environment.
+% It was introduced in 1992 for \ac{BSD} OS and ported to Linux later. 
+% Originated designed for network packet filtering, it has been since then extended and used for firewall, tracing, debugging purposes \cite{McCanne_intro_bpf} \cite{lwn_intro_ebpf} by tech giants: firewall, filter, load-balancer by Facebook \cite{facebook_katran_ebpf_2018}; monitoring and analyzing by Netflix \cite{netflix_network_insight}; security and observation by Cilium Project \cite{cilium_io_page}; cloud infrastructure by Alibaba \cite{alibaba_cloud_ebpf}.
 
-Although running code in the kernel space reduces overhead originate from context switching and preemptive, it faces the risk of compromising the system through memory leak, crashing or malicious exploit \cite{lwn_detect_kernel_mem_leak} \cite{emamdoost_detecting_2021}.
-\ac{BPF} technology is a alternative tool to execute code in kernel space in a controlled environment.
-It was introduced in 1992 for \ac{BSD} OS and ported to Linux later. 
-Originated designed for network packet filtering, it has been since then extended and used for firewall, tracing, debugging purposes \cite{McCanne_intro_bpf} \cite{lwn_intro_ebpf} by tech giants: firewall, filter, load-balancer by Facebook \cite{facebook_katran_ebpf_2018}; monitoring and analyzing by Netflix \cite{netflix_network_insight}; security and observation by Cilium Project \cite{cilium_io_page}; cloud infrastructure by Alibaba \cite{alibaba_cloud_ebpf}.
+\ac{BPF} technology provides an alternative means of executing code within the kernel space, offering a controlled environment for such operations. 
+Initially introduced in 1992 for the \ac{BSD} OS, it was later ported to the Linux platform. 
+Originally designed for network packet filtering, \ac{BPF} has since been expanded and utilized for purposes such as firewall management, tracing, and debugging \cite{McCanne_intro_bpf} \cite{lwn_intro_ebpf}. 
+Prominent technology companies have leveraged \ac{BPF} for various applications, including Facebook's use of it for firewalling, filtering, and load balancing \cite{facebook_katran_ebpf_2018} and Netflix's utilization for network monitoring and analysis \cite{netflix_network_insight}. 
+Additionally, the Cilium Project has employed \ac{BPF} for security and observability purposes \cite{cilium_io_page} and Alibaba has integrated it into their cloud infrastructure \cite{alibaba_cloud_ebpf}.
 
 \begin{figure}[H]
     \centering
@@ -56,13 +76,8 @@ The \ac{ebpf} kernel program is written in a subset of the C programming languag
 The 64 bit \ac{RISC}-based \ac{ebpf} virtual machine along with a verifier check the code safety and isolate the execution of the \ac{ebpf} kernel program.
 To get started, the kernel program is inserted to the desired code path in the kernel where it will be executed whenever the code path is traversed \cite{lwn_intro_ebpf}.
 
+\subsection{AF\_XDP socket}
 \ac{xdppage} is a type of Linux socket that utilizes \ac{ebpf} to deliver incoming raw network packets arrived from a \ac{NIC} to user space with comparable performance to \ac{dpdkpage} \cite{karlsson_path_to_dpdk_speednodate}.
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=1.0\textwidth]{XDP_integration_with_the_Linux_network_stack.PNG}
-	\caption{XDP’s integration with the Linux network stack \cite{hoiland_jorgensen_express_2018}}\label{fig:approach_design:xdp_architecture}
-\end{figure}
 
 \begin{figure}[H]
 	\centering
@@ -72,6 +87,12 @@ To get started, the kernel program is inserted to the desired code path in the k
 
 High throughput: kernel-bypass method such as DPDK and AF\_XDP can easily saturate 100Gbit line per core on a modern CPU, with baseline packet drop per second of up to 43.5Mpps (million packets per second) and 24Mpps respectively compared to 4.8Mpps by Linux networking stack \cite{hoiland_jorgensen_express_2018} \cite{intel_dpdk_perf}.
 his provides us the opportunity to create a multi-hundreds Gbit connection (tunnel) using nothing more than just several available 40/100Gbit NIC.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{XDP_integration_with_the_Linux_network_stack.PNG}
+	\caption{XDP’s integration with the Linux network stack \cite{hoiland_jorgensen_express_2018}. The XDP program is activated whenever a packet enter the driver's buffer, where it will be examined. The XDP program makes the decision if the packet should follow its normal path in the network stack, or be discarded/forwarded/delivered to XDP user space program.}\label{fig:approach_design:xdp_architecture}
+\end{figure}
 
 
 \section{Implementation details}
