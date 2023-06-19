@@ -7,22 +7,40 @@ Thanks to the secure design of the eBPF virtual machine architecture, this appro
 In this chapter, we will explore the concept and design of the tunnel by examining its intended features and components.
 
 \section{Multipath Tunnel using XDP socket}
+% - A modern approach to system and network programming: performance, safe and free from legacy code thanks to eBPF technology.
+% - Almost certainly will heavily outperform any other user-space approach
+% - Increase redundancy and connection reliability.
+% - Possible improvement in latency through efficiency and utilizing multipath.
+% - Disparity in line utilization to support different types of streams: data need bandwidth, voice-over-ip needs low latency, critical message needs reliable transmission
+At the conclusion of our project, we aim to provide an MTX library equipped with a comprehensive range of features, including:
 
+\begin{itemize}
+	\item Embrace a contemporary approach to system and network programming with the utilization of eBPF technology, ensuring performance, safety, and freedom from legacy code.
+	\item Highly likely to outperform alternative user-space approaches significantly.
+	\item Enhance redundancy and bolster connection reliability.
+	\item Potential for improved latency by leveraging efficiency and harnessing the power of multipath.
+	\item Address the varying requirements of different stream types by optimizing line utilization: bandwidth for data-intensive tasks, low latency for voice-over-IP, and reliable transmission for critical messages.
+\end{itemize}
 
+% - The MTX tunnel allows setting policies at several layers defined by algorithms or configuration. With such preemptive points these will be a large pool of configurations to chose from:
+% 	- Data link layer: which stream can use which link, with which priority, what is the load distribution policy?
+% 	- Network layer: select IPv4/v6 as carrier, which UDP port.
+% 	- Application layer: priority of application, buffer fetching timeout, buffer reserved for low-latency usage, ...
+% - Ideally, after initiation, a tunnel control plane will run in background and manage the streams that are used by several applications. These applications register usage to the tunnel control plane and interact with data plane through shared buffers. Parameters can be set individually for each app.
+% - Apart from that, we will also investigate the possibility to create a TUN/TAP interface as a intermediate communicate layer between the MTX tunnel and apps. This is a well-known practice used by many VPN programs to allow several apps to use the VPN connection. This way, applications can use the tunnel connection without modifying the source code.
+The MTX tunnel incorporates a flexible policy framework at multiple layers, enabling the utilization of algorithms or configurations. 
+This offers a wide array of options for customization, including:
+\begin{itemize}
+	\item Data link layer: determining which streams can utilize specific links, assigning priorities, and implementing load distribution policies.
+	\item Network layer: selecting the carrier protocol (IPv4/v6) and specifying the UDP port.
+	\item Application layer: prioritizing applications, defining buffer fetching timeouts, reserving buffers for low-latency usage, and more.
+\end{itemize}
 
-
-- A modern approach to system and network programming: performance, safe and free from legacy code thanks to eBPF-AF\_XDP technology.
-- Almost certainly will heavily outperform any other user-space approach
-- Increase redundancy and connection reliability.
-- Possible improvement in latency
-- Disparity in line utilization to support different types of streams: data need bandwidth, voice-over-ip needs low latency, critical message needs reliable transmission
-
-- The MTX tunnel allows setting policies at several layers defined by algorithms or configuration. With such preemptive points these will be a large pool of configurations to chose from:
-	- Data link layer: which stream can use which link, with which priority, what is the load distribution policy?
-	- Network layer: select IPv4/v6 as carrier, which UDP port.
-	- Application layer: priority of application, buffer fetching timeout, buffer reserved for low-latency usage, ...
-- Ideally, after initiation, a tunnel control plane will run in background and manage the streams that are used by several applications. These applications register usage to the tunnel control plane and interact with data plane through shared buffers. Parameters can be set individually for each app.
-- Apart from that, we will also investigate the possibility to create a TUN/TAP interface as a intermediate communicate layer between the MTX tunnel and apps. This is a well-known practice used by many VPN programs to allow several apps to use the VPN connection. This way, applications can use the tunnel connection without modifying the source code.
+Ideally, a tunnel control plane will operate in the background after initiation, effectively managing the streams utilized by various applications. 
+These applications will register their usage with the tunnel control plane and interact with the data plane through shared buffers. 
+Parameters can be individually configured for each application.
+Additionally, we will explore the feasibility of creating a TUN/TAP interface to serve as an intermediate communication layer between the MTX tunnel and applications. 
+This approach, commonly employed by VPN programs, enables multiple applications to utilize the tunnel connection without requiring modifications to their source code.
 
 \section{AF\_XDP socket - eBPF}
 \subsection{Introduction to eBPF and Linux's kernel}
@@ -77,7 +95,6 @@ The 64 bit \ac{RISC}-based \ac{ebpf} virtual machine along with a verifier check
 To get started, the kernel program is inserted to the desired code path in the kernel where it will be executed whenever the code path is traversed \cite{lwn_intro_ebpf}.
 
 \subsection{AF\_XDP socket}
-\ac{xdppage} is a type of Linux socket that utilizes \ac{ebpf} to deliver incoming raw network packets arrived from a \ac{NIC} to user space with comparable performance to \ac{dpdkpage} \cite{karlsson_path_to_dpdk_speednodate}.
 
 \begin{figure}[H]
 	\centering
@@ -85,8 +102,16 @@ To get started, the kernel program is inserted to the desired code path in the k
 	\caption{Comparing performance between AF XDP and DPDK \cite{karlsson_path_to_dpdk_speednodate}. The authors tested  rxdrop (dropping all arriving packets), txpush (pushing packets out a NIC) and l2fwd (Level-2-forwarding, replacing MAC address of incoming packets and pushing them out) scenarios.}\label{fig:approach_design:af_xdp_vs_dpdk_3_micro_benchmarks}
 \end{figure}
 
-High throughput: kernel-bypass method such as DPDK and AF\_XDP can easily saturate 100Gbit line per core on a modern CPU, with baseline packet drop per second of up to 43.5Mpps (million packets per second) and 24Mpps respectively compared to 4.8Mpps by Linux networking stack \cite{hoiland_jorgensen_express_2018} \cite{intel_dpdk_perf}.
-his provides us the opportunity to create a multi-hundreds Gbit connection (tunnel) using nothing more than just several available 40/100Gbit NIC.
+\ac{xdppage} is a type of Linux socket that utilizes \ac{ebpf} to deliver incoming raw network packets arrived from a \ac{NIC} to user space with comparable performance to \ac{dpdkpage} \cite{karlsson_path_to_dpdk_speednodate}. 
+The socket has demonstrated the capability to fully utilize a 100Gb line per core on modern CPUs, with impressive baseline packet drop rates of up to 24 million packets per second (Mpps) compared to 4.8Mpps with Linux network stack \cite{hoiland_jorgensen_express_2018} \cite{intel_dpdk_perf}.
+This high throughput potential allows us to establish multi-hundreds Gb connections (tunnels) by leveraging a few readily available 40/100Gb NICs, presenting a valuable opportunity for enhanced network performance.
+
+Being a native Linux's feature, \ac{xdppage} has several advantages over other 3rd party solutions:
+\begin{itemize}
+	\item Reducing dependency: minimizing the reliance on third-party libraries reduces the concern for potential vulnerabilities.Furthermore, this approach guarantees the longevity of the product, as the socket is maintained by the dedicated team of kernel developers, indicating that the project is unlikely to be discontinued in the near future. 
+	\item License: no special license required. However, the eBPF kernel program must be licensed under GNU \ac{GPL} since anything uses eBPF in kernel space is considered a derivative work \cite{gpl_email_discussion} \cite{linux_license_rule} \cite{lwn_clarify_bpf_license}.
+	\item Security and Update: the open-source and collaborative nature of Linux ensures that its code base is diligently maintained by dedicated maintainers and an active community of contributors.
+\end{itemize}
 
 \begin{figure}[H]
 	\centering
@@ -96,6 +121,9 @@ his provides us the opportunity to create a multi-hundreds Gbit connection (tunn
 
 
 \section{Implementation details}
+
+
+
 % \section{Introduction}
 
 % \begin{wrapfigure}{r}{0.2\textwidth}

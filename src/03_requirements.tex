@@ -27,6 +27,13 @@ To address the need for a multipath connection that supports non-homogeneous and
 Our proposal aims to bridge the gap by enabling the utilization of multiple paths simultaneously.
 To ensure optimal path utilization and minimal latency, we will utilize \ac{xdppage} technology to handle the movement of tunnel traffic. 
 Specifically, the tunnel traffic will consist of UDP packets, allowing for efficient and effective data transmission.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{tunnel_supports_multiple_flows_diff_qos.png}
+	\caption{Tunnel supports multiple flows with different QoS over multiple path. The path can function either as a failover path or consistently participate in the transmission process.}\label{fig:reqs:tunnel_supports_multiple_flows_diff_qos}
+\end{figure}
+
 The following section will present the requirements for the project \todo{improve}.
 
 \subsection{Functional requirements}
