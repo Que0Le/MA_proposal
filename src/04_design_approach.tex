@@ -80,8 +80,7 @@ However, such an approach carries inherent risks, including the possibility of s
 \ac{BPF} technology provides an alternative means of executing code within the kernel space, offering a controlled environment for such operations. 
 Initially introduced in 1992 for the \ac{BSD} OS, it was later ported to the Linux platform. 
 Originally designed for network packet filtering, \ac{BPF} has since been expanded and utilized for purposes such as firewall management, tracing, and debugging \cite{McCanne_intro_bpf} \cite{lwn_intro_ebpf}. 
-Prominent technology companies have leveraged \ac{BPF} for various applications, including Facebook's use of it for firewalling, filtering, and load balancing \cite{facebook_katran_ebpf_2018} and Netflix's utilization for network monitoring and analysis \cite{netflix_network_insight}. 
-Additionally, the Cilium Project has employed \ac{BPF} for security and observability purposes \cite{cilium_io_page} and Alibaba has integrated it into their cloud infrastructure \cite{alibaba_cloud_ebpf}.
+Prominent technology companies have leveraged \ac{BPF} for various applications, including: Facebook for firewall, filtering, and load balancing \cite{facebook_katran_ebpf_2018}; Netflix for network monitoring and analysis \cite{netflix_network_insight}; Cilium Project for security and observability purposes \cite{cilium_io_page} and Alibaba for their cloud infrastructure \cite{alibaba_cloud_ebpf}.
 
 \begin{figure}[H]
     \centering
@@ -99,7 +98,7 @@ To get started, the kernel program is inserted to the desired code path in the k
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{af_xdp_vs_dpdk_3_micro_benchmarks.PNG}
-	\caption{Comparing performance between AF XDP and DPDK \cite{karlsson_path_to_dpdk_speednodate}. The authors tested  rxdrop (dropping all arriving packets), txpush (pushing packets out a NIC) and l2fwd (Level-2-forwarding, replacing MAC address of incoming packets and pushing them out) scenarios.}\label{fig:approach_design:af_xdp_vs_dpdk_3_micro_benchmarks}
+	\caption{Comparing performance between \ac{xdppage} and \ac{dpdkpage} \cite{karlsson_path_to_dpdk_speednodate}. The authors tested  rxdrop (dropping all arriving packets), txpush (pushing packets out a NIC) and l2fwd (Level-2-forwarding, replacing MAC address of incoming packets and pushing them out) scenarios.}\label{fig:approach_design:af_xdp_vs_dpdk_3_micro_benchmarks}
 \end{figure}
 
 \ac{xdppage} is a type of Linux socket that utilizes \ac{ebpf} to deliver incoming raw network packets arrived from a \ac{NIC} to user space with comparable performance to \ac{dpdkpage} \cite{karlsson_path_to_dpdk_speednodate}. 
@@ -122,7 +121,49 @@ Being a native Linux's feature, \ac{xdppage} has several advantages over other 3
 
 \section{Implementation details}
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{mtx_design_and_workflow.png}
+	\caption{The architecture of our MTX tunnel and the flow of packets}
+	\label{fig:approach_design:mtx_design_and_workflow}
+\end{figure}
 
+The tunnel will be implemented in C for Linux. It consisted of 4 main components: eBPF kernel program, shared buffer, data plane and control plane.
+
+\subsection{Buffers}
+Buffers are separated into tx (transmit) and rx (receive) buffers that are available for application use. 
+These buffers facilitate efficient data transfer for different streams and priorities, allowing the application to write to or read from the appropriate buffer as needed.
+
+\subsection{Kernel Program}
+XDP kernel program is responsible for filtering tunnel packets based on criteria like UDP port, IP address, and the magic number in the tunnel header. 
+These filtered packets are then delivered to the Packet aggregator for subsequent processing. 
+Conversely, all other packets that are not of interest to us are passed through to the Linux network stack.
+While it may be tempting to offload additional tasks such as unpacking and decryption to the kernel program for improved performance, it is important to note that this approach would significantly increase development time.
+
+\subsection{Data Plane}
+Data plane functionality is divided into two main paths: the TX path and the RX path.
+\begin{itemize}
+	\item TX path is responsible for data output and tunnel packet transmission. It consists of a poller that retrieves fresh packet data from the TX buffers, taking into account priorities for efficient processing. The poller determines the order in which packets are polled, considering factors such as smaller batch sizes and shorter timeouts to minimize waiting time and increase CPU usage. High-priority packets are processed first. After polling, the packet preparer handles tasks such as encryption, compression, and encapsulation. Finally, the dispatcher sends the prepared packets to the XDP sockets, which will then transmit them over the appropriate network links.
+	\item RX path is responsible for receiving tunnel packets. The aggregator retrieves tunnel packets from the XDP sockets, and then passes them to the unpacker for unpacking and subsequent delivery to the RX buffers for further processing.
+\end{itemize}
+
+\subsection{Control Plane}
+The control plane plays a vital role in the system as it handles various interactions with the application. 
+It is responsible for configuration management, initiation, termination, and runtime information exchange. 
+The control plane acts as the central control hub, governing and coordinating all other components of the system.
+
+% \begin{itemize}
+%     \item Top level
+%     \begin{itemize}
+%         \item Second level
+%     \end{itemize}
+% \end{itemize}
+% \lstinputlisting{somefile}
+% \begin{itemize}
+%     \item[]\begin{itemize}
+%         \item Second level
+%     \end{itemize}
+% \end{itemize}
 
 % \section{Introduction}
 
