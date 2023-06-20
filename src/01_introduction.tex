@@ -26,6 +26,7 @@ A connection that supports the concept of \textit{multipath} utilizes multiple n
 Protocols like \ac{MPTCP} and \ac{SCTP} operate in this manner, but they are implemented as non-sharable connections.
 A non-share connection is initiated similarly to establishing a socket and can only be utilized by the program initiating it. This limitation severely restricts the ability to effectively control, schedule, and share multipath resources among multiple applications. 
 Tasks such as prioritization and buffering become challenging without a centralized control plane that can orchestrate communication channels, which is currently absent in these protocols.
+
 %
 We propose another tunnel implementation: \ac{MTX}. 
 % The tunnel will have multipath support by design, allow multiple applications to share the connection simultaneously, and be built based on Linux's \ac{xdppage} socket family.
@@ -132,26 +133,20 @@ This allows for improved reliability and more effective utilization of resources
 
 % \sidenote{Research Assumptions}
 % \todomid{write about the research assumptions~\cite{li2002design}}
-Besides the reliability's \ac{QoS} characteristic, we define the metrics to measure performance of a tunnel as follow:
-\begin{itemize}
-    \item Bandwidth: Quantity of data that can be transmitted through per second, usually measured in Megabit per Second (Mb/s) or Gigabit  per Second (Gb/s)
-    \item Latency: Delay, measured in microsecond (us) or millisecond (ms). Latency introduced by the tunneling process at both ends compared to sending data over the same public path without the tunnel.
-    \item System load: Tunneling process costs CPU time and RAM usage.
-\end{itemize}
 
 % The idea
 The project is inspired by \ac{5G}'s \ac{NFV} and \ac{SDN} influenced specification.
 Being recognized as the 2 technology enabler for realizing 5G networks, they allow concepts such as \textit{slicing} or \textit{decoupling} of hardware-software planes and control-data planes \cite{yousaf_nfv_sdn_key_techno_for_5g2017} \cite{open_baton} which make \ac{5G} a much more capable network standard than its predecessor while remains flexible and agile for operators \todo{better wording here}.
 \ac{NFV} moves dedicated functions such as router, firewall that traditionally ran on dedicated hardware to virtualized environment and cloud-based infrastructure.
 \ac{SDN} encourages using software based solution running on common hardware and software stack over conventional equipment and services which integrated on rigid hardware-based proprietary.
-\ac{NFV} and \ac{SDN} thus helps reducing capital and operational expenditures, speeding up the release process and avoid vendor locking \cite{yousaf_nfv_sdn_key_techno_for_5g2017} \cite{sun_integrating_2015}.
+\ac{NFV} and \ac{SDN} thus helps reducing capital and operational expenditures, speeding up the release process and avoid vendor locking \cite{yousaf_nfv_sdn_key_techno_for_5g2017}\cite{sun_integrating_2015}.
 These trends heavily influence the 5G infrastructure to employ recent software industry's practices, which include agile development, orchestration, moving to cloud, dynamic deployment, and \ac{HA} through horizontal partition.
 \ac{5G}'s distributed network services and diverse \ac{QoS} require reliable and high throughput connection, which as discussed in \Cref{sec:introduction:problem_statement} can be horizontally implemented in an performant and cost-effective way using multiple links instead of vertical scaling paradigm.
 
 % building block:
-Moving functions to cloud and virtual environment faces performance challenges, one of which is the overhead introduced by the abstraction, virtualization layers as well as the extra input/output and communication between functions that can be found locally before \cite{yousaf_nfv_sdn_key_techno_for_5g2017}.
+Moving functions to cloud and virtual environment faces performance challenges, one of which is the overhead introduced by the abstraction, virtualization layers as well as the extra input/output and communication between functions that could be found locally before \cite{yousaf_nfv_sdn_key_techno_for_5g2017}.
 Although the running newly designed cloud-native software on orchestrated thin containers help addressing the performance problem, we believe some aspects of the connection can be improved further, namely compatibility and ease of development and deployment.
-In many 5G's implementation, technologies such as \ac{dpdkpage} and \ac{sriov} are being used to deliver line-speed packet processing capability to hypervisor environment with minimal impact on system performance \cite{intel_dpdk_perf} \cite{openstack_sriov} \cite{zte_5g_core_upf_impl} \cite{nec_hite_paper_upf_perf}.
+In many 5G's implementation, technologies such as \ac{dpdkpage} and \ac{sriov} are being used to deliver line-speed packet processing capability to hypervisor environment with minimal impact on system performance \cite{intel_dpdk_perf}\cite{nec_hite_paper_upf_perf}\cite{openstack_sriov}\cite{zte_5g_core_upf_impl}.
 We believe that these technologies proved their worthy, yet the systems suffer from limitation such as special requirement and configuration \todo{cite, that dpdk and sriov can't run on all commercial system}.
 This would not only increase cost, but also make the product less attractive for research and test bed purposes, especially in the open source and academy community where budget and custom support is limited.
 To address this, using a native and more simple Linux's technology - \ac{xdppage}, a new socket family based on eBPF technology with comparable performance to \ac{dpdkpage} - to build a tunnel that is designed to support multipath and multi-flow could be a promising supplement for existing implementation. \todo{more}

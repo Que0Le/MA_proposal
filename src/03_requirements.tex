@@ -9,7 +9,7 @@ This \ac{MTX} library will enable the establishment of a network tunnel between 
 The test program will serve as a demonstration platform for the library, simulating a transport session using the \ac{gptu} protocol — a 5G technology employed for tunneling a significant volume of non-homogeneous data.
 During the demonstration, the library's capabilities will be showcased, including flow management, throughput control, and other essential features that align with the intended purpose of the library.
 
-\section{Current solution}
+\section{Current solution}\label{sec:reqs:current_solutions}
 % Multipath is equivalent to horizontal scaling to increase connection capacity.
 % It is also a method to achieve better reliability by building redundancy.
 % Quality of service can also be improve by providing treatment and links optimized for different data flows.
@@ -20,9 +20,11 @@ Finally, through the establishment of a multipath tunnel, the resources availabl
 This leads to improved resource utilization and overall efficiency in the network.
 
 Current tunnel and VPN solutions available in the market are limited to single-path functionality. While protocols like \ac{MPTCP} and \ac{SCTP} are well-known for their multipath capabilities, they are primarily designed for exclusive use by a single caller.
-Our focus lies in exploring how high-demand applications, particularly within the 5G infrastructure, handle the substantial traffic volume. Interestingly, certain implementations leverage DPDK to enhance packet forwarding and processing capabilities beyond the limitations of the Linux network stack. However, these software stacks are not readily accessible for research and testing purposes without purchasing expensive system.
+% Our focus lies in exploring how high-demand applications, particularly within the 5G infrastructure, handle the substantial traffic volume. 
+Certain implementations leverage DPDK to enhance packet forwarding and processing capabilities beyond the limitations of the Linux network stack on multiple links. 
+However, these software stacks are not readily accessible for research and testing purposes without purchasing expensive system.
 
-\section{Proposed solution}
+\section{Proposed solution}\label{sec:reqs:proposed_solution}
 To address the need for a multipath connection that supports non-homogeneous and concurrent usage, we introduce the concept of a multipath tunnel. 
 Our proposal aims to bridge the gap by enabling the utilization of multiple paths simultaneously.
 To ensure optimal path utilization and minimal latency, we will utilize \ac{xdppage} technology to handle the movement of tunnel traffic. 
@@ -38,16 +40,23 @@ The following section will present the requirements for the project. \todo{impro
 
 \subsection{Functional requirements}
 % Functional requirements describes the high-level functionality of the system.
-We define the functional requirements for the \ac{MTX} library:
+The functional requirements for the \ac{MTX} library shall include ability to:
 \begin{itemize}
-    \item Given multiple \ac{NIC}s, \ac{MTX} library shall be able to establish a tunnel between 2 hosts and exchange data through the tunnel over the chosen \ac{NIC}s.
-    \item The \ac{MTX} library shall send and receive tunnel's UDP packets using \ac{xdppage} socket exclusively.
-    \item The\ac{MTX} library shall support for path-level control and treatment, including scheduling, path failure detection and initiation. \todo{more}
-    \item The\ac{MTX} library shall provide support for flow-level control and treatment, including setting and enforcing priority, traffic shaping, resource allocation for sensitive requirement (i.e path for low latency data).
-    \item A centralized controller shall be provided. Users shall have access to configuration options for the aforementioned features.
+    \item Establish a tunnel between 2 hosts and exchange data through the tunnel over the chosen \ac{NIC}s.
+    \item Send and receive tunnel's UDP packets using \ac{xdppage} socket exclusively.
+    \item Support for path-level control and treatment, including scheduling, path failure detection and initiation. \todo{more}
+    \item Provide support for flow-level control and treatment, including setting and enforcing priority, traffic shaping, resource allocation for sensitive requirement (i.e path for low latency data).
+    \item Provide a centralized controller, where users have access to configuration options for the aforementioned features.
 \end{itemize}
 
 \subsection{Nonfunctional requirements}
+Besides the reliability's \ac{QoS} characteristic, we define the metrics to measure performance of a tunnel as follow:
+\begin{itemize}
+    \item Bandwidth: Quantity of data that can be transmitted through per second, usually measured in Megabit per Second (Mb/s) or Gigabit  per Second (Gb/s)
+    \item Latency: Delay, measured in microsecond (us) or millisecond (ms). Latency introduced by the tunneling process at both ends compared to sending data over the same public path without the tunnel.
+    \item System load: Tunneling process costs CPU time and RAM usage.
+\end{itemize}
+
 We define the non-functional requirements for the \ac{MTX} library:
 \begin{itemize}
     \item Usability: \ac{MTX} library should be used similar to a Linux socket. A global configuration will be responsible for managing the overall configuration of the tunnel. On the other hand, each caller will have the ability to configure the traffic characteristics according to their specific requirements.

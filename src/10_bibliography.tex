@@ -1,4 +1,4 @@
-\cleardoublepage
+% \cleardoublepage
 \chapter*{Acronyms}
 \mtcaddchapter\addstarredchapter{Acronyms}
 \markboth{Acronyms}{Acronyms}
@@ -6,14 +6,14 @@
 \renewcommand*{\chapterthumbformat}{Acronyms}
 \printacronyms[name={}, exclude=exclude]
 
-\cleardoublepage
+% \cleardoublepage
 \stepcounter{chapter}
 \renewcommand{\glossaryname}{Glossary}
 \markboth{\glossaryname}{\glossaryname}
 \renewcommand*{\chapterthumbformat}{\glossaryname}
 \printglossary%
 
-\cleardoublepage
+% \cleardoublepage
 \chapter*{Bibliography}
 \mtcaddchapter\addstarredchapter{Bibliography}
 \markboth{Bibliography}{Bibliography}
@@ -26,6 +26,12 @@
 \newrefcontext[labelprefix=a]
 \printbibliography[keyword=own,heading=empty,category=cited]
 
+\section*{References to Books}
+\defbibfilter{books}{
+  type=book
+}
+\newrefcontext[labelprefix=b]
+\printbibliography[filter=books,heading=empty,category=cited,notkeyword=own]
 
 \section*{References to Scientific Publications}
 \defbibfilter{papers}{
@@ -35,7 +41,7 @@
   or type=journal
   or type=phdthesis
   or type=incollection
-  or type=book
+  % or type=book
   or keyword=thesis
   and not keyword=W3C
   and not keyword=RFC
@@ -94,8 +100,8 @@
 \printbibliography[filter=misc,heading=empty,category=cited,notkeyword=own]
 
 
-\section*{Not referenced (will be empty)}
-\todo{this section should be empty at the end}
-\nocite{*}
-\newrefcontext[labelprefix=x]
-\printbibliography[heading=empty,notcategory=cited,notkeyword=own]
+% \section*{Not referenced (will be empty)}
+% \todo{this section should be empty at the end}
+% \nocite{*}
+% \newrefcontext[labelprefix=x]
+% \printbibliography[heading=empty,notcategory=cited,notkeyword=own]

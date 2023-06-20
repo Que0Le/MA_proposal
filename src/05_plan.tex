@@ -1,22 +1,24 @@
 % \cleardoublepage
 \chapter{Plan and Timeline}\minitoc\label{sec:plan}\vspace{.5cm}
 
+This chapter will outline our project plan and provide a timeline for its execution.
+
 \section{Project Plan}
 
-During the development phase, we adhere to the rapid prototyping model \Cref{fig:plan:rapid_prototyping_software}. 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{rapid_prototyping_software.png}
+	\caption{Rapid prototyping cycle \cite{marketsplash_rapid_2021}}
+	\label{fig:plan:rapid_prototyping_software}
+\end{figure}
+
+During the development phase, we adhere to the rapid prototyping model (\Cref{fig:plan:rapid_prototyping_software}). 
 This approach involves starting with a high-level architecture rather than a detailed, concrete design. 
 The focus is on breaking down features and components into tasks, allowing for agile and iterative development. 
 This approach enables us to quickly prototype and test different functionalities, leading to efficient development and flexibility in the design process.
 Each task is designed to be self-contained and independent, allowing for development and testing within the existing code base. 
 The development process follows a loop of building prototypes, reviewing them, refining the implementation, and iterating on the design. 
 The goal is to complete each task within a time frame of 1-2 weeks, ensuring a focused and efficient development process. This iterative approach allows for rapid progress and continuous improvement throughout the project.
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=1.0\textwidth]{rapid_prototyping_software.png}
-	\caption{Rapid prototyping cycle \cite{marketsplash_rapid_2021}}
-	\label{fig:plan:rapid_prototyping_software}
-\end{figure}
 
 The development process will take place within a Linux environment. 
 As for testing purposes, the program binary will be deployed and executed on 2 industrial-grade computers \textit{UP CORE} designed by \ac{AAEON}, equipped with multiple Ethernet ports \cite{upc_core} \cite{upc_extension_board}. 
@@ -27,19 +29,27 @@ In this setup, RAN (Radio Access Network) and Open5GS software will be installed
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=1.0\textwidth]{upc_machines.png}
-	\caption{Two UPC machines with 3 ethernet ports connected (enp3s0, enp5s0, enp7s0). Port enp1s0 is connected to workstation for remote management purpose.}
+	\includegraphics[width=0.8\textwidth]{upc_machines.png}
+	\caption{Two UPC machines with 3 ethernet ports connected (\textit{enp3s0}, \textit{enp5s0}, \textit{enp7s0}). Port \textit{enp1s0} is connected to workstation for remote management purpose.}
 	\label{fig:plan:upc_machines}
 \end{figure}
 
 
-\clearpage
 \section{Timeline}
+\Cref{fig:plan:TIMELINE} presents the timeline for this project. 
+To successfully complete the thesis, three primary objectives must be accomplished: implementation, experimentation, and thesis documentation.
+The implementation phase will be divided into two stages: the foundation library, which focuses on building the essential features, followed by the functional library, where the remaining features outlined in \Cref{sec:reqs:proposed_solution} will be implemented. 
+Once the implementation is complete, the experimentation phase will commence. 
+Concurrently, the documentation will be developed throughout the project's duration, incorporating the necessary content.
 
+The thesis is set to be completed in 6 months.
+
+\clearpage
 \begin{sidewaysfigure}
     \centering
     \includegraphics[width=1.0\textwidth]{resources/images/TIMELINE.PNG}
     \caption{Expected progress. The thesis can be finished in 6 months..}
+	\label{fig:plan:TIMELINE}
   \end{sidewaysfigure}
 
 

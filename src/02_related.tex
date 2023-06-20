@@ -1,15 +1,5 @@
 \cleardoublepage\chapter{Related Work}\label{sec:related_work}\minitoc\vspace{.5cm}\index{SotA}
 
-\section{Introduction}
-
-% \begin{wrapfigure}{r}{0.2\textwidth}
-%     \centering
-%     \includegraphics[width=0.2\textwidth]{resources/images/example3}
-% \end{wrapfigure}
-
-% \sidenote{Overview}
-% \todomid{write}
-
 The concept of multipath is well-established, and in this section, we will explore notable existing multipath protocols, their characteristics, and highlight the unique aspects of our concept. 
 Additionally, we will discuss future use cases for our \ac{MTX} and examine current solutions and technologies being utilized. 
 Finally, we will take a closer look at the design of the 5G system, with a specific focus on the Data Plane, to explain our plan for showcasing the multipath tunnel using the \ac{gptu} protocol.
@@ -33,9 +23,9 @@ Our primary emphasis is on establishing a connection between two points, irrespe
 % We will explore various protocols that implement the concept and make comparisons with our approach.
 There are 2 approaches to utilize multiple links: managing multiple underlying connections created by existing protocols (\ac{MPTCP} with TCP), and creating a new multipath protocol (\ac{SCTP}).
 Drawing inspiration from these protocols, our design of \ac{MTX} adopts a hybrid approach: a tunnel that transfers data over multiple UDP connections instead of maintaining TCP sessions. 
-The tunnel comprises two primary logical components: the control plane and the transport plane. 
-The control plane handles session management, congestion control overhead, and other administrative tasks, enabling the transport plane to be constructed with wrappers over UDP sockets.
-Unlike serving solely the socket caller, the multipath tunnel is designed to offer connection and flow management for multiple applications, enabling centralized resource management and scheduling.
+The tunnel data path comprises two primary logical stages: the data stage and the transport stage. 
+The data stage handles session management, congestion control overhead, and other administrative tasks, enabling the transport stage to be constructed with wrappers over UDP sockets.
+Unlike serving solely the caller, the multipath tunnel is designed to offer connection and flow management for multiple applications, enabling centralized resource management and scheduling.
 
 \subsection{Multipath TCP}\label{sec:related_work:mp_connection:MPTCP}
 % MultiPath TCP (MPTCP) is an effort towards enabling the simultaneous use of several IP-addresses/interfaces by a modification of TCP that presents a regular TCP interface to applications, while in fact spreading data across several subflows. Benefits of this include better resource utilization, better throughput and smoother reaction to failures. 
@@ -63,7 +53,7 @@ Notably, \ac{SCTP} is used in 5G core design for transmitting messages in Contro
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{resources/images/3gpp_5g_part_of_control_plane_protocol.png}
-	\caption{Control Plane protocol stack between the UE, the 5G-AN, the AMF and the SMF \cite{3gpp_5g_system_overview}}
+	\caption{3GPP: Control Plane protocol stack between the UE, the 5G-AN, the AMF and the SMF \cite{3gpp_5g_system_overview}}
     \label{fig:related_work:3gpp_5g_part_of_control_plane_protocol}
 \end{figure}
 
@@ -75,13 +65,13 @@ These components are categorized into two groups: the Control plane and the Data
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1.0\textwidth]{resources/images/Non_Roaming_5G_System_Architecture_in_reference_point_representation.png}
-	\caption{Non-Roaming 5G System Architecture in reference point representation \cite{3gpp_5g_system_architect_spec_release_18}}
+	\caption{Data and Control Plane in 3GPP's Non-Roaming 5G System Architecture in reference point representation \cite{3gpp_5g_system_architect_spec_release_18}}
 	\label{fig:related_work:Non_Roaming_5G_System_Architecture_in_reference_point_representation}
 \end{figure}
 
 As mentioned in \Cref{sec:related_work:mp_connection:SCTP}, the control plane uses \ac{SCTP} protocol with multipath support for its internal communication.
 The Data plane relies on \ac{gptu} protocol with \ac{UDP} as the transport protocol to deliver high volume of data between \ac{UE} and \ac{DN} (see \Cref{fig:introduction:3gpp_5g_data_plane_protocol}), which require powerful processing power and high capable network link.
-According to \ac{3GPP}, an non-exhausted list of \ac{UPF}'s responsibility is Packet routing \& forwarding, Packet inspection, buffering, sending and forwarding \cite{3gpp_5g_system_architect_spec_release_18}.
+According to \ac{3GPP}, an non-exhausted list of \ac{UPF}'s responsibility is \textit{packet routing \& forwarding}, packet \textit{inspection}, \textit{buffering}, \textit{sending} and \textit{forwarding} \cite{3gpp_5g_system_architect_spec_release_18}.
 In order to meet the \ac{SLA} and \ac{QoS} requirements, the \ac{UPF} needs to be deployed in various locations, such as the edge (edge and campus), regional sites, and central data centers \cite{zte_upf_full_whitepaper}. 
 The size and form of each \ac{UPF} instance vary significantly depending on factors such as the number and size of downstream and upstream functions it manages and responds to, as depicted in \Cref{fig:related_work:Deployment_Requirements_of_Full_Scenario_UPF}.
 
@@ -126,8 +116,9 @@ Unlike \ac{dpdkpage}, \ac{xdppage} socket has no monopoly on the \ac{NIC}, thus 
 By providing independent memory space, interrupts, and \ac{DMA} streams for each virtual machine, natively shared devices by \ac{sriov} achieve low latency and lower CPU utilization compared to virtual devices provided by traditional \ac{VMM}'s Virtual Switch or  I/O emulation layer (see \Cref{fig:related_work:intel_sriov_Natively_and_Software_Shared}) \cite{intel_sriov}.
 As the \ac{sriov} specification is developed by \ac{PCISIG}, the consortium responsible for the \ac{PCIe} standard, there is no risk of vendor lock-in or significantly hidden cost.
 A similar but less sophisticated method - namely \ac{PCIe} passthrough - to eliminates emulation overhead on I/O operation in hypervisor environment is completely disconnecting the \ac{PCIe} device from the host kernel and connecting it to the guest \ac{OS} instead, although this makes device sharing impossible.
-However, it is important to note that the \ac{sriov} specification is specifically designed for passing resources to and from a hypervisor environment, which is not conflict with our intended scenario.
-The \ac{MTX} is designed as a general-purpose multipath tunnel that functions on \ac{NIC}s, making \ac{sriov} technology the underlying infrastructure layer for enabling \ac{MTX}'s \ac{xdppage} sockets to operate on the native shared devices, similar to how \ac{ZTE} used \ac{sriov} in conjunction with \ac{dpdkpage} in their software stack \cite{zte_upf_full_whitepaper}.
+It is also important to note that the \ac{sriov} specification is specifically designed for passing resources to and from a hypervisor environment, which is not conflict with our intended scenario.
+The \ac{MTX} is designed as a general-purpose multipath tunnel that functions on \ac{NIC}s, making \ac{sriov} technology the underlying infrastructure layer for enabling \ac{MTX}'s \ac{xdppage} sockets to operate on the native shared devices.
+This is similar to how \ac{ZTE} used \ac{sriov} in conjunction with \ac{dpdkpage} in their software stack \cite{zte_upf_full_whitepaper}.
 
 \begin{figure}[H]
 	\centering
@@ -143,7 +134,7 @@ The \ac{MTX} is designed as a general-purpose multipath tunnel that functions on
 \Cref{fig:related_work:5g_dp_enhancement} describes how data is moved between \ac{UE} and \ac{DN} based on 3GPP specification and various sources.
 A \ac{PDU} session is established to create a logical data path between \ac{UE} and \ac{UPF}.
 This \ac{PDU} logical session runs on top of several transporting protocol.
-Radio Bearer (RB) is the channel to move user data and control data between UE and radio equipment over. 
+Radio Bearer (RB) is the channel to move user data and control data between UE and radio equipment.
 \ac{eCPRI} connects front-haul network and moves user data, controlling and management data, and synchronization data flows between DU and RU \cite{eCPRI_spec}.
 \ac{gptu} connection - often called \textit{tunnel} - helps transferring user data between middle-haul and back-haul networks in UDP packets.
 Data in different categories receive forwarding treatment differently, depends on the priority, subscription, ... 

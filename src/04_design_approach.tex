@@ -70,8 +70,8 @@ In Linux, tasks can operate in two distinct modes: kernel mode and user mode. Wh
 Invisible to end user, the system switches between kernel mode and user mode very often, usually when a system \ac{API} is involved or a resource needs to be accessed \cite{Robert_linux_kernel_dev}.
 % Although switching between modes is supported by the CPU, significant overhead is caused by switching context and translating memory address.
 % Running code purely in the kernel space could reduce such overhead and have better scheduling policy, however this faces the risk of compromising the system through memory leak, crashing or malicious exploit 
-While the CPU supports mode switching, there is a noticeable overhead associated with context switching and memory address translation. 
-Running code exclusively in the kernel space has the potential to reduce this overhead and improve scheduling policies. 
+Although the CPU supports mode switching, there is a noticeable overhead associated with context switching and memory address translation. 
+Running code exclusively in the kernel space has the potential to reduce this overhead and enjoy \textit{better} scheduling policies. 
 However, such an approach carries inherent risks, including the possibility of system compromise due to memory leaks, crashes, or malicious exploits \cite{lwn_detect_kernel_mem_leak} \cite{emamdoost_detecting_2021}.
 % \ac{BPF} technology is a alternative tool to execute code in kernel space in a controlled environment.
 % It was introduced in 1992 for \ac{BSD} OS and ported to Linux later. 
@@ -98,7 +98,7 @@ To get started, the kernel program is inserted to the desired code path in the k
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{af_xdp_vs_dpdk_3_micro_benchmarks.PNG}
-	\caption{Comparing performance between \ac{xdppage} and \ac{dpdkpage} \cite{karlsson_path_to_dpdk_speednodate}. The authors tested  rxdrop (dropping all arriving packets), txpush (pushing packets out a NIC) and l2fwd (Level-2-forwarding, replacing MAC address of incoming packets and pushing them out) scenarios.}\label{fig:approach_design:af_xdp_vs_dpdk_3_micro_benchmarks}
+	\caption{Comparing performance between \ac{xdppage} and \ac{dpdkpage} \cite{karlsson_path_to_dpdk_speednodate}. The authors tested  rxdrop (dropping all arriving packets), txpush (pushing packets out a NIC) and l2fwd (Level-2-forwarding, replacing MAC address of incoming packets and pushing them out) scenarios. DPDK continues to be the leading solution in terms of raw performance.}\label{fig:approach_design:af_xdp_vs_dpdk_3_micro_benchmarks}
 \end{figure}
 
 \ac{xdppage} is a type of Linux socket that utilizes \ac{ebpf} to deliver incoming raw network packets arrived from a \ac{NIC} to user space with comparable performance to \ac{dpdkpage} \cite{karlsson_path_to_dpdk_speednodate}. 
@@ -109,7 +109,7 @@ Being a native Linux's feature, \ac{xdppage} has several advantages over other 3
 \begin{itemize}
 	\item Reducing dependency: minimizing the reliance on third-party libraries reduces the concern for potential vulnerabilities.Furthermore, this approach guarantees the longevity of the product, as the socket is maintained by the dedicated team of kernel developers, indicating that the project is unlikely to be discontinued in the near future. 
 	\item License: no special license required. However, the eBPF kernel program must be licensed under GNU \ac{GPL} since anything uses eBPF in kernel space is considered a derivative work \cite{gpl_email_discussion} \cite{linux_license_rule} \cite{lwn_clarify_bpf_license}.
-	\item Security and Update: the open-source and collaborative nature of Linux ensures that its code base is diligently maintained by dedicated maintainers and an active community of contributors.
+	\item Security and Update: the open-source and collaborative nature of Linux ensures that its code base is diligently maintained by dedicated maintainers and an active community of contributors, including researcher from universities and institutes, employee from industrial vendors and individual hobbyist.
 \end{itemize}
 
 \begin{figure}[H]
@@ -124,20 +124,20 @@ Being a native Linux's feature, \ac{xdppage} has several advantages over other 3
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1.0\textwidth]{mtx_design_and_workflow.png}
-	\caption{The architecture of our MTX tunnel and the flow of packets}
+	\caption{The architecture of our MTX tunnel and the flow of packets. The notation \textit{1, 2 and 3} describe how  packets from application travel through the egress path. Notation \textit{4 to 8} show how application receive the packets from tunnel and normal Linux socket.}
 	\label{fig:approach_design:mtx_design_and_workflow}
 \end{figure}
 
 The tunnel will be implemented in C for Linux. It consisted of 4 main components: eBPF kernel program, shared buffer, data plane and control plane.
 
 \subsection{Buffers}
-Buffers are separated into tx (transmit) and rx (receive) buffers that are available for application use. 
+Buffers are separated into tx (transmit, see notation \textit{1}) and rx (receive, see notation \textit{8}) buffers that are available for application use. 
 These buffers facilitate efficient data transfer for different streams and priorities, allowing the application to write to or read from the appropriate buffer as needed.
 
 \subsection{Kernel Program}
-XDP kernel program is responsible for filtering tunnel packets based on criteria like UDP port, IP address, and the magic number in the tunnel header. 
-These filtered packets are then delivered to the Packet aggregator for subsequent processing. 
-Conversely, all other packets that are not of interest to us are passed through to the Linux network stack.
+XDP kernel program (see notation \textit{4}) is responsible for filtering tunnel packets based on criteria like UDP port, IP address, and the magic number in the tunnel header. 
+These filtered packets are then delivered to the Packet aggregator for subsequent processing (notation \textit{5}). 
+Conversely, all other packets that are not of interest to us are passed through to the Linux network stack (notation \textit{6 and 9}).
 While it may be tempting to offload additional tasks such as unpacking and decryption to the kernel program for improved performance, it is important to note that this approach would significantly increase development time.
 
 \subsection{Data Plane}
@@ -148,9 +148,9 @@ Data plane functionality is divided into two main paths: the TX path and the RX 
 \end{itemize}
 
 \subsection{Control Plane}
-The control plane plays a vital role in the system as it handles various interactions with the application. 
+The control plane plays a vital role in the system as it handles various interactions with the application (notation \textit{7}). 
 It is responsible for configuration management, initiation, termination, and runtime information exchange. 
-The control plane acts as the central control hub, governing and coordinating all other components of the system.
+The control plane acts as the central control hub, governing and coordinating all other components of the tunnel.
 
 % \begin{itemize}
 %     \item Top level
