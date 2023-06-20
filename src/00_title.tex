@@ -12,8 +12,8 @@
 \metaSubmitted%
 \\
 \metaAuthor, \metaDegree~\\
-\metaBirthplace%
-\\
+% \metaBirthplace%
+% \\
 
 \vspace*{2cm}
 \metaFaculty%
@@ -29,7 +29,7 @@
 \\
 \vspace*{0,5cm}
 
-\ifthenelse{\equal{\isFinal}{true}}{
+\ifthenelse{\equal{\isFinal}{false}}{
 \metaHowFinal%
 }{
 \metaHowNonFinal%
@@ -43,9 +43,9 @@
 \vspace*{.3cm}\\
 \begin{tabular}{@{\hspace{1.5em}}ll}
 \metaChair: & \metaChairName~(\metaChairUniversity) \\
-\metaReviewer: & \metaFirstReviewerName~(\metaFirstReviewerUniversity) \\
-\metaReviewer: & \metaSecondReviewerName~(\metaSecondReviewerUniversity)\\
-\metaReviewer: & \metaThirdReviewerName~(\metaThirdReviewerUniversity)\\
+% \metaReviewer: & \metaFirstReviewerName~(\metaFirstReviewerUniversity) \\
+% \metaReviewer: & \metaSecondReviewerName~(\metaSecondReviewerUniversity)\\
+% \metaReviewer: & \metaThirdReviewerName~(\metaThirdReviewerUniversity)\\
 \end{tabular}
 
 \vspace*{1,9cm}
@@ -56,12 +56,12 @@
 \vspace*{6cm}
 }
 
-\begin{center}
-\metaNumber\newline
-\end{center}
+% \begin{center}
+% \metaNumber\newline
+% \end{center}
 
 
-\ThisLROffsetCornerWallPaper{.2}{resources/images/logo}   % logo in the corner
+% \ThisLROffsetCornerWallPaper{.2}{resources/images/logo}   % logo in the corner
 
 \restoregeometry%
 \end{titlepage}
