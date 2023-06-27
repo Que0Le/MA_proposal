@@ -36,11 +36,11 @@ We propose another tunnel implementation: \ac{MTX}.
 The tunnel is designed to support multipath capabilities and allow multiple applications to concurrently share the connection. 
 It is constructed based on Linux's \ac{xdppage} socket family, leveraging the latest native Linux technology. 
 This implementation is expected to outperform user space implementations in terms of performance while maintaining compatibility with existing systems and ensuring simplicity in the code base.
-The support for multiple connection links offers reliability, high raw-bandwidth, and a comprehensive configuration set for applications bound to the tunnel. 
-Consequently, it is well-suited for demanding use cases such as industry, data centers, and telecommunication hubs.
-This document will investigate an enhancement for the 5G's \ac{gptu} protocol (Note: consider removing the "cut this" placeholder) using the \ac{MTX} library. 
-The \ac{gptu} protocol facilitates communication between the UPF and gNodeB functions in a 5G system, demanding both bandwidth and stability. 
-Therefore, it is an appropriate match for demonstrating the capabilities of the \ac{MTX} system. \todo{improve}
+The support for multiple connection links offers reliability, high raw-bandwidth, and a comprehensive configuration set for applications bound to the tunnel that is well-suited for demanding use cases such as industry, data centers, and telecommunication hubs.
+This document will investigate an enhancement for the 5G's \ac{gptu} protocol using the \ac{MTX} library. 
+The \ac{gptu} protocol is an appropriate match for demonstrating the capabilities of the \ac{MTX} system since it facilitates communication between the UPF and gNodeB functions in a 5G system, demanding both bandwidth and stability.
+% The \ac{gptu} protocol facilitates communication between the UPF and gNodeB functions in a 5G system, demanding both bandwidth and stability. 
+% Therefore, it is an appropriate match for demonstrating the capabilities of the \ac{MTX} system. \todo{improve}
 %
 
 \begin{figure}[H]
@@ -50,6 +50,9 @@ Therefore, it is an appropriate match for demonstrating the capabilities of the 
     \label{fig:introduction:3gpp_5g_data_plane_protocol}
 \end{figure}
 
+
+While it is possible to establish a connection between two applications using a single link, improving the bandwidth and reliability to support high-demand applications is a challenging endeavor. 
+In \Cref{sec:introduction:problem_statement}, we will outline the difficulties inherent in the current single-link methods and explore how the multipath approach can effectively tackle these issues.
 
 \section{Problem Statement}\index{Requirements}\label{sec:introduction:problem_statement}
 % In this section, the problems with single-link tunnel will be presented.
@@ -65,9 +68,11 @@ Currently, these technologies provide bandwidths of 100-200Gb/s per line \cite{e
 While this bandwidth is impressive for inter-system communication, it cannot match the internal connections within a system. 
 For instance, AMD's "Infinity Fabric" bridge offers an in-package bandwidth of 256GB/s on Zeppelin SoC family \cite{burd_zeppelin_2019}, and up to 800GB/s in peer-to-peer tests between GPUs using more bands \cite{amd_infinity_architecture}.
 This indicates that even with the latest networking hardware, the connection between computer instances can become a bottleneck for distributed data-intensive applications, for instance large \ac{AI} model or computer simulation. 
-In such cases, a multipath tunnel can abstract the complexity of merging multiple links from the applications, effectively scaling up the network capacity horizontally. 
-Consequently, the multipath tunnel enables data centers to benefit from larger combined bandwidth using current technology and serves as a necessary tool to overcome future physical and economic limitations.
-For less demanding use cases, aggregation presents an affordable method to build fast connections using available hardware.
+% In such cases, a multipath tunnel can abstract the complexity of merging multiple links from the applications, effectively scaling up the network capacity horizontally. 
+In such cases, a multipath tunnel can take over the complexity of merging multiple links and exposed only the combined connection to the applications, effectively scaling up the network capacity horizontally. 
+% Consequently, the multipath tunnel enables data centers to benefit from larger combined bandwidth using current technology and serves as a necessary tool to overcome future physical and economic limitations.
+This way, a larger combined bandwidth can be formed using current technology and serves as a necessary tool to overcome future physical and economic limitations.
+% For less demanding use cases, aggregation presents an affordable method to build fast connections using available hardware.
 %
 % Reliability
 % Connection's reliability is closely related to the failure probabilities of the individual links and nodes (component reliability, can directly effect service availability) \cite{shooman_algorithms_1995} and the \ac{QoS} parameters \cite{gozdecki_quality_2003}.
@@ -77,17 +82,16 @@ For less demanding use cases, aggregation presents an affordable method to build
 % A connection's failure probability can be reduced by upgrading to a more resilient but expensive link or equipping with multiple failover lines. 
 % Similarly, while better hardware can eliminate many \ac{QoS} inadequacy problems, having multiple links (or routes) each optimized for a type of appliance is certainly more suitable and affordable for the operator, especially if the data traffic is heterogeneous \cite{chen_overview_1998}.
 % A multipath tunnel with flow-aware capability can be used in this case to manage the underlying links as an abstraction layer for the applications that utilize the connection. \todo{improve} \todo{more about QoS}
+
 The reliability of a connection is closely tied to the failure probabilities of the individual links and nodes, which directly impacts service availability \cite{shooman_algorithms_1995}. 
 Additionally, \ac{QoS} parameters such as latency, peak throughput, and jitter play a crucial role \cite{gozdecki_quality_2003}.
-Depending on the use case, connection reliability can either serve as a \ac{QoS} measurement factor (e.g., for commercial network providers) or a strict requirement (e.g., for critical applications). 
-
+Depending on the use case, connection reliability can either serve as a \ac{QoS} measurement factor (e.g., for commercial network providers) or a strict requirement (critical applications). 
+It is commonly acknowledged that ensuring a 99.99 percent reliability comes with a significant price tag, and pushing for such guarantees will likely result in exponential cost escalation.
 Generally, there are two non-exclusive strategies commonly employed to enhance connection reliability: strengthening individual links or incorporating redundancy.
 % Upgrading to more resilient, albeit costly, hardware links or implementing multiple failover lines can reduce the probability of connection failures. 
 While superior hardware can reduce the probability of connection failures and address many \ac{QoS} inadequacies, having multiple links or routes optimized for specific applications is often a more practical and cost-effective approach for operators, particularly when dealing with heterogeneous data traffic \cite{chen_overview_1998}.
-In such cases, a multipath tunnel with flow-aware capabilities can be utilized as an abstraction layer to manage the underlying links for applications relying on the connection. 
-This allows for improved reliability and more effective utilization of resources. 
-\todo{improve} \todo{more about QoS}
-
+In such cases, a multipath tunnel with flow-aware capabilities can be utilized as an abstraction layer to manage the underlying links for applications relying on the connection, which allows for improved reliability and more effective utilization of resources. 
+\todo{review}
 %  heterogeneous data traffic
 
 %%
@@ -100,7 +104,7 @@ This allows for improved reliability and more effective utilization of resources
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{resources/images/Interconnect_Technologies_500_supercomp.PNG}
-	\caption{Interconnect technologies of top 500 super computers, 2023 edition as tracked by TOP500 project \cite{Interconnect_Technologies_500_supercomp}}
+	\caption{Interconnect technologies of top 500 super computers, 2023 edition as tracked by TOP500 project \cite{Interconnect_Technologies_500_supercomp}. Ethernet and Infiniband are the primary network technologies utilized in most systems.}
     \label{fig:introduction:Interconnect_Technologies_500_supercomp}
 \end{figure}
 
@@ -135,21 +139,22 @@ This allows for improved reliability and more effective utilization of resources
 % \todomid{write about the research assumptions~\cite{li2002design}}
 
 % The idea
-The project is inspired by \ac{5G}'s \ac{NFV} and \ac{SDN} influenced specification.
-Being recognized as the 2 technology enabler for realizing 5G networks, they allow concepts such as \textit{slicing} or \textit{decoupling} of hardware-software planes and control-data planes \cite{yousaf_nfv_sdn_key_techno_for_5g2017} \cite{open_baton} which make \ac{5G} a much more capable network standard than its predecessor while remains flexible and agile for operators \todo{better wording here}.
+This multipath project is inspired by \ac{5G}'s \ac{NFV} and \ac{SDN} influenced specification.
+% Being recognized as the 2 technology enablers for realizing 5G networks, they allow concepts such as \textit{slicing} or \textit{decoupling} of hardware-software planes and control-data planes \cite{yousaf_nfv_sdn_key_techno_for_5g2017} \cite{open_baton} which make \ac{5G} a much more capable network standard than its predecessor while remains flexible and agile for operators \todo{better wording here}.
+Being recognized as the 2 technology enablers for realizing 5G networks, they allow concepts such as \textit{slicing} or \textit{decoupling} \cite{yousaf_nfv_sdn_key_techno_for_5g2017} \cite{open_baton}, which make \ac{5G} a much more capable network standard than its predecessor while remains flexible and agile for operators \todo{review}.
 \ac{NFV} moves dedicated functions such as router, firewall that traditionally ran on dedicated hardware to virtualized environment and cloud-based infrastructure.
-\ac{SDN} encourages using software based solution running on common hardware and software stack over conventional equipment and services which integrated on rigid hardware-based proprietary.
-\ac{NFV} and \ac{SDN} thus helps reducing capital and operational expenditures, speeding up the release process and avoid vendor locking \cite{yousaf_nfv_sdn_key_techno_for_5g2017}\cite{sun_integrating_2015}.
-These trends heavily influence the 5G infrastructure to employ recent software industry's practices, which include agile development, orchestration, moving to cloud, dynamic deployment, and \ac{HA} through horizontal partition.
+\ac{SDN} encourages using software based solution running on common hardware and software stack over conventional equipments and services, which often integrated on rigid hardware-based proprietary.
+\ac{NFV} and \ac{SDN} thus help reducing capital and operational expenditures, speeding up the release process and avoid vendor locking \cite{yousaf_nfv_sdn_key_techno_for_5g2017}\cite{sun_integrating_2015}.
+These trends heavily influence the 5G infrastructure to employ recent software industry's practices, including agile development, orchestration, utilization of cloud, dynamic deployment, and \ac{HA} through horizontal partition.
 \ac{5G}'s distributed network services and diverse \ac{QoS} require reliable and high throughput connection, which as discussed in \Cref{sec:introduction:problem_statement} can be horizontally implemented in an performant and cost-effective way using multiple links instead of vertical scaling paradigm.
 
 % building block:
-Moving functions to cloud and virtual environment faces performance challenges, one of which is the overhead introduced by the abstraction, virtualization layers as well as the extra input/output and communication between functions that could be found locally before \cite{yousaf_nfv_sdn_key_techno_for_5g2017}.
-Although the running newly designed cloud-native software on orchestrated thin containers help addressing the performance problem, we believe some aspects of the connection can be improved further, namely compatibility and ease of development and deployment.
-In many 5G's implementation, technologies such as \ac{dpdkpage} and \ac{sriov} are being used to deliver line-speed packet processing capability to hypervisor environment with minimal impact on system performance \cite{intel_dpdk_perf}\cite{nec_hite_paper_upf_perf}\cite{openstack_sriov}\cite{zte_5g_core_upf_impl}.
-We believe that these technologies proved their worthy, yet the systems suffer from limitation such as special requirement and configuration \todo{cite, that dpdk and sriov can't run on all commercial system}.
-This would not only increase cost, but also make the product less attractive for research and test bed purposes, especially in the open source and academy community where budget and custom support is limited.
-To address this, using a native and more simple Linux's technology - \ac{xdppage}, a new socket family based on eBPF technology with comparable performance to \ac{dpdkpage} - to build a tunnel that is designed to support multipath and multi-flow could be a promising supplement for existing implementation. \todo{more}
+Moving functions to cloud and virtual environment faces performance challenges, one of which is the overhead introduced by the abstraction, virtualization layers as well as the extra input/output and communication between functions \cite{yousaf_nfv_sdn_key_techno_for_5g2017}.
+Although running cloud-native software on thin, orchestrated containers help addressing the performance problem, we believe the connection can be improved further on some aspects, namely compatibility and ease of development and deployment.
+This is because in many 5G's implementation, technologies such as \ac{dpdkpage} and \ac{sriov} are being used to deliver line-speed packet processing capability to hypervisor environment with minimal impact on system performance \cite{intel_dpdk_perf}\cite{nec_hite_paper_upf_perf}\cite{openstack_sriov}\cite{zte_5g_core_upf_impl}.
+These technologies proved their worthy, yet the systems suffer from special requirement and configuration - in other words the commercial components are tailored picked and build for the purpose.
+This would not only increase cost and decrease flexibility, but also make the product less attractive for purposes such as research and test bed, especially in the open source and academy community where budget and custom support is severely limited.
+To address this, using a native and more simple Linux's technology - \ac{xdppage}, a new socket family based on eBPF technology with comparable performance to \ac{dpdkpage} - to build a tunnel that is designed to support multipath and multi-flow could be a promising supplement for existing implementation. \todo{review}
 
 
 % \sidenote{Research Scope}
@@ -158,8 +163,8 @@ With an implementation and a thesis documentation for the multipath tunnel as th
 \begin{itemize}
     \item Scope of research: this research is limited to investigating a tunnel implementation based on \ac{xdppage} technology that employs multipath and flow-aware concepts. A functional tunnel is expected to be built in 3 months. From there, more complex features will be added along with a test application to run on top the tunnel for testing and demonstrating purposes. In the course of building process, this initiated documentation will be updated until the project reaches its time limitation (6 months in total). Although the tunnel library will be a general purpose framework that can be deployed for any application, it is intended to be tested with 5G's software stack in mind.
     \item Foreseeable tasks: researching the project idea, building multipath protocol, implementing the tunnel, testing and demonstrating tasks are planed. 
-    \item Implementation: the tunnel will be implemented in C/C++, uses \ac{xdppage} sockets as the packet transport layer. The tunnel shall be able to exchange data over multiple \ac{NIC}s and treat each packet differently based on defined configuration (stream based/flow based). More will be discussed in the next section.
-    \item Demonstration: used to test and present the features of the tunnel. At this stage, a simplified version of \ac{gptu} protocol has been chosen to run on top of the tunnel. \ac{gptu} is the communication protocol responsible for establishing data exchanging channels in 5G's \ac{UPF} and gNodeB. These channels (or tunnels) handle streams of data, each has \ac{QoS} identifier with different characteristics and priority. This makes the protocol a good match for tunnel demonstration purpose.
+    \item Implementation: the tunnel will be implemented in C/C++ and uses \ac{xdppage} sockets as the packet transport layer. The tunnel shall be able to exchange data over multiple \ac{NIC}s and treat each packet differently based on configuration (stream based/flow based). More will be discussed in the next section.
+    \item Demonstration: for testing and presenting the features of the tunnel. At current stage, a simplified version of \ac{gptu} protocol has been chosen as the application to run on top of the tunnel. \ac{gptu} is the communication protocol responsible for establishing data exchanging channels in 5G's \ac{UPF} and gNodeB. These channels (or tunnels) handle streams of data, each has \ac{QoS} identifier with different characteristics and priority. This makes the protocol a good match for tunnel demonstration purpose.
 \end{itemize}
 
 
@@ -175,10 +180,12 @@ Generally, the tunnel implementation can be useful for the following scenarios:
 Although we hope the project's outcome can contribute to the general understanding of software based solution for high performance networking field, we seek opportunity to integrate the tunnel into the next generation telecommunication system. We found 2 potential improvements according to our research: \todo{improve the following text}
 \begin{itemize}
     \item N6 connection between UPF (also N9 i.e between UPF-E and UPF-C) and Data network: enhanced by prioritized, flow-aware, high bandwidth multipath tunnel. To meet differentiated SLA requirements for latency, bandwidth and reliability, UPF needs to be deployed at different positions including central DC, regional DC, edge DC and campus DC. MTX can help saturating physical links coup with support large number of UEs.
-    \item 5G user plane (back-haul N3 between gNodeB-UPF, mid-haul between gNodeB-CU and -DU) relied on message-based protocol \ac{gptu} (the character "U" means "user data tunneling") to relay traffic in tunnels - or flows within a PDP session.
+    \item 5G user plane. The back-haul N3 connection between gNodeB-UPF, and mid-haul F1 connection between gNodeB-CU and -DU relied on message-based protocol \ac{gptu} (the character "U" means "user data tunneling") to relay traffic within a PDP session.
 \end{itemize}
 
-We also identified reports regarding performance issues in the \ac{UPF} of \ac{o5gs} - a well-known 5G core implementation that the AV team at the TU Berlin is currently using in their 5G test bed. Contributors have proposed employing \ac{dpdkpage} and exploring lower-level approaches to minimize overhead \cite{open5gs_github_dpdk}\cite{open5gs_github_udp_perf_cap}, as the current implementation limits the TUN interface bandwidth to 1Gbit. We believe that through thorough analysis, this presents an opportunity for us to make a valuable contribution to the \ac{o5gs} project with our MTX tunnel.
+We also identified reports regarding performance issues in the \ac{UPF} of \ac{o5gs} - a well-known 5G core implementation that the AV team at the TU Berlin is currently using in their 5G test bed. 
+Contributors have proposed employing \ac{dpdkpage} and exploring lower-level approaches to minimize overhead \cite{open5gs_github_udp_perf_cap}\cite{open5gs_github_dpdk}, as the current implementation limits the TUN interface bandwidth to 1Gbit. 
+After through thorough analysis, this presents an opportunity for us to make a valuable contribution to the \ac{o5gs} project with our MTX tunnel.
 
 \begin{figure}[H]
 	\centering
