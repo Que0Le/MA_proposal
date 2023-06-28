@@ -149,8 +149,8 @@ This is managed by splitting the data into streams (called \ac{QoS} Flow, marked
     \label{fig:related_work:5g_dp_enhancement}
 \end{figure}
 
-In actual deployed systems, \ac{gptu} tunnels are typically established and configured professionally on top of multiple links that are aggregated and managed by a software stack, for instance \ac{dpdkpage} and \ac{sriov}, which involve costly software and hardware (powerful and specifically chosen hardware) that lack flexibility.
-Alternative, open source implementations usually suffers from performance losses due to inefficiency, as noted in Open5GS discussion \cite{open5gs_github_udp_perf_cap}\cite{open5gs_github_dpdk}.
+In actual deployed systems, \ac{gptu} tunnels are typically established and configured professionally on top of multiple links that are aggregated and managed by a software stack, for instance \ac{dpdkpage} and \ac{sriov}, which involve costly software and (powerful and specifically chosen) hardware that lack flexibility.
+The alternative, open source implementations usually suffers from performance losses due to inefficiency, as noted in Open5GS discussion \cite{open5gs_github_udp_perf_cap}\cite{open5gs_github_dpdk}.
 
 Our goal is to tackle the performance and usability issues by exploring the development of a straightforward yet robust multipath tunnel capable of functioning in both physical and virtual environments. 
 To ensure ease of maintenance and facilitate compatibility with other protocols, we aim for a tunnel code base that remains simple and minimizes the need for extensive modifications, which is why \ac{xdppage} has been selected as the preferred transport method.

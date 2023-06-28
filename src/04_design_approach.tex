@@ -29,7 +29,7 @@ At the conclusion of our project, we aim to provide an MTX library equipped with
 % - Ideally, after initiation, a tunnel control plane will run in background and manage the streams that are used by several applications. These applications register usage to the tunnel control plane and interact with data plane through shared buffers. Parameters can be set individually for each app.
 % - Apart from that, we will also investigate the possibility to create a TUN/TAP interface as a intermediate communicate layer between the MTX tunnel and apps. This is a well-known practice used by many VPN programs to allow several apps to use the VPN connection. This way, applications can use the tunnel connection without modifying the source code.
 The MTX tunnel incorporates a flexible policy framework at multiple layers, enabling the utilization of algorithms or configurations. 
-This offers a wide array of options for customization, including:
+This offers a wide array of options for customization, including at:
 \begin{itemize}
 	\item Data link layer: determining which streams can utilize specific links, assigning priorities, and implementing load distribution policies.
 	\item Network layer: selecting the carrier protocol (IPv4/v6) and specifying the UDP port.

@@ -14,21 +14,22 @@ During the demonstration, the library's capabilities will be showcased, includin
 % It is also a method to achieve better reliability by building redundancy.
 % Quality of service can also be improve by providing treatment and links optimized for different data flows.
 % By establishing a multipath tunnel, the resources of each path can be monitored and scheduled between concurrent applications and leads to better utilization and efficiency.
-Multipath technique serves as a means of horizontally scaling networking capacity by aggregating resources to increase connection bandwidth. 
-Additionally, it offers a way to enhance reliability by incorporating redundancy into the network connection. Furthermore, multipath can improve quality of service by enabling optimized treatment and dedicated links for different types of data flows.
-Finally, through the establishment of a multipath tunnel, the resources available on each path can be monitored and efficiently allocated among concurrent applications. 
-This leads to improved resource utilization and overall efficiency in the network.
 
 Current tunnel and VPN solutions available in the market are limited to single-path functionality. While protocols like \ac{MPTCP} and \ac{SCTP} are well-known for their multipath capabilities, they are primarily designed for exclusive use by a single caller.
 % Our focus lies in exploring how high-demand applications, particularly within the 5G infrastructure, handle the substantial traffic volume. 
 Certain implementations leverage DPDK to enhance packet forwarding and processing capabilities beyond the limitations of the Linux network stack on multiple links. 
 However, these software stacks are not readily accessible for research and testing purposes without purchasing expensive system.
 
+Multipath technique serves as a means of horizontally scaling networking capacity by aggregating resources to increase connection bandwidth. 
+Additionally, it offers a way to enhance reliability by incorporating redundancy into the network connection. Furthermore, multipath can improve quality of service by enabling optimized treatment and dedicated links for different types of data flows.
+Finally, through the establishment of a multipath tunnel, the resources available on each path can be monitored and efficiently allocated among concurrent applications. 
+This leads to improved resource utilization and overall efficiency in the network.
+
 \section{Proposed solution}\label{sec:reqs:proposed_solution}
 To address the need for a multipath connection that supports non-homogeneous and concurrent usage, we introduce the concept of a multipath tunnel. 
 Our proposal aims to bridge the gap by enabling the utilization of multiple paths simultaneously.
 To ensure optimal path utilization and minimal latency, we will utilize \ac{xdppage} technology to handle the movement of tunnel traffic. 
-Specifically, the tunnel traffic will consist of UDP packets, allowing for efficient and effective data transmission.
+Specifically, the tunnel traffic will consist of UDP packets, allowing for efficient data transmission.
 
 \begin{figure}[H]
 	\centering
@@ -36,7 +37,7 @@ Specifically, the tunnel traffic will consist of UDP packets, allowing for effic
 	\caption{Tunnel supports multiple flows with different QoS over multiple path. The path can function either as a failover path or consistently participate in the transmission process.}\label{fig:reqs:tunnel_supports_multiple_flows_diff_qos}
 \end{figure}
 
-The following section will present the requirements for the project. \todo{improve}
+The following section will present the requirements for the project:
 
 \subsection{Functional requirements}
 % Functional requirements describes the high-level functionality of the system.
@@ -44,9 +45,9 @@ The functional requirements for the \ac{MTX} library shall include ability to:
 \begin{itemize}
     \item Establish a tunnel between 2 hosts and exchange data through the tunnel over the chosen \ac{NIC}s.
     \item Send and receive tunnel's UDP packets using \ac{xdppage} socket exclusively.
-    \item Support for path-level control and treatment, including scheduling, path failure detection and initiation. \todo{more}
+    \item Support for path-level control and treatment, including scheduling, path failure detection and path initiation.
     \item Provide support for flow-level control and treatment, including setting and enforcing priority, traffic shaping, resource allocation for sensitive requirement (i.e path for low latency data).
-    \item Provide a centralized controller, where users have access to configuration options for the aforementioned features.
+    \item Provide a centralized controller.
 \end{itemize}
 
 \subsection{Nonfunctional requirements}
@@ -63,112 +64,8 @@ We define the non-functional requirements for the \ac{MTX} library:
     \item Performance and Reliability: The tunnel is expected to deliver throughput asymptotic to the line rate while having very low negative effect on overall system load thanks to \ac{xdppage} technology. Measuring is rather complicated since the code quality can't be ensured and high performance hardware will be needed. This problem should be addressed in the course of the project.
 \end{itemize}
 
-\subsection{System models}
-Intended to be a general purpose multipath tunnel, \ac{MTX} is designed to be the wrapper around transport layer to abstract the multipath details.
-Callers interact with the tunnel through shared memory or a TUN/TAP interface. This will be discussed further.
-The library can be considered for application where reliability, high performance and ease of maintain requirements converge \todo{more}.
-\todo{System models describes the scenarios, use cases, object model, and dynamic models for the system. This section contains the complete functional specification, including mock-ups illustrating the user interface of the system and navigational paths representing the sequence of screens. The subsections Object model and Dynamic model are written during the Analysis activity.}
-
-
-% \begin{wrapfigure}{r}{0.2\textwidth}
-%     \centering
-%     \includegraphics[width=0.2\textwidth]{resources/images/example3}
-% \end{wrapfigure}
-
-% \sidenote{Overview}
-% \todomid{write about \Cref{fig:req:details}}
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=.85\textwidth]{resources/images/example3}
-%     \caption{More detailed overview of the requirements}\label{fig:req:details}
-% \end{figure}
-
-% \sidenote{Structure of Research}
-% \todomid{write about \Cref{fig:hourglass:reqs}}
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=.55\textwidth]{resources/images/example3}
-%     \caption{Placement of the requirement section in the structure of research}\label{fig:hourglass:reqs}
-% \end{figure}
-
-% \section{Stakeholder 1}
-
-% \sidenote{\Cref{tbl:reqs:stakeholder1}}
-% \todomid{write about \Cref{tbl:reqs:stakeholder1}}
-
-% \begin{tabularx}{\textwidth}{lX}
-%     \caption{Requirements from stakeholder 1 perspective}\label{tbl:reqs:stakeholder1}\\
-%     \toprule
-%     \textbf{\#}& \textbf{Description}  \\\midrule
-%     \endfirsthead%
-%     \toprule
-%     \textbf{\#}& \textbf{Description}  \\\midrule
-%     \endhead%
-%     \requirement{U}{req:stakeholder1:foo}{Foo}
-%        & \todomid{write}
-%     \\\midrule
-%     \requirement{U}{req:stakeholder1:bar}{Bar}
-%        & \todomid{write}
-%     \\\bottomrule
-% \end{tabularx}
-
-% \section{Stakeholder 2}
-
-% \sidenote{\Cref{tbl:reqs:stakeholder2}}
-% \todomid{write about \Cref{tbl:reqs:stakeholder2}}
-
-% \begin{tabularx}{\textwidth}{lX}
-%     \caption{Requirements from stakeholder 2 perspective}\label{tbl:reqs:stakeholder2}\\
-%     \toprule
-%     \textbf{\#}& \textbf{Description}  \\\midrule
-%     \endfirsthead%
-%     \toprule
-%     \textbf{\#}& \textbf{Description}  \\\midrule
-%     \endhead%
-%     \requirement{S}{req:stakeholder2:foo}{Foo}
-%        & \todomid{write}
-%     \\\midrule
-%     \requirement{S}{req:stakeholder2:bar}{Bar}
-%        & \todomid{write}
-%     \\\bottomrule
-% \end{tabularx}
-
-% \section{Stakeholder 3}
-
-% \sidenote{\Cref{tbl:reqs:stakeholder3}}
-% \todomid{write about \Cref{tbl:reqs:stakeholder3}}
-
-% \begin{tabularx}{\textwidth}{lX}
-%     \caption{Requirements from stakeholder 3 perspective}\label{tbl:reqs:stakeholder3}\\
-%     \toprule
-%     \textbf{\#}& \textbf{Description}  \\\midrule
-%     \endfirsthead%
-%     \toprule
-%     \textbf{\#}& \textbf{Description}  \\\midrule
-%     \endhead%
-%     \requirement{T}{req:stakeholder3:foo}{Foo}
-%        & \todomid{write}
-%     \\\midrule
-%     \requirement{T}{req:stakeholder3:bar}{Bar}
-%        & \todomid{write}
-%     \\\bottomrule
-% \end{tabularx}
-
-% \section{Conclusion}
-
-% \sidenote{Summary}
-% \todomid{write}
-
-% \sidenote{Takeaway 1}
-% \todomid{write}
-
-% \sidenote{Takeaway 2}
-% \todomid{write}
-
-% \sidenote{Takeaway 3}
-% \todomid{write}
-
-% \sidenote{Next chapter}
-% \todomid{write}
+% \subsection{System models}
+% Intended to be a general purpose multipath tunnel, \ac{MTX} is designed to be the wrapper around transport layer to abstract the multipath details.
+% Callers interact with the tunnel through shared memory or a TUN/TAP interface.
+% The library can be considered for application where reliability, high performance and ease of maintain requirements converge \todo{more}.
+% \todo{System models describes the scenarios, use cases, object model, and dynamic models for the system. This section contains the complete functional specification, including mock-ups illustrating the user interface of the system and navigational paths representing the sequence of screens. The subsections Object model and Dynamic model are written during the Analysis activity.}
