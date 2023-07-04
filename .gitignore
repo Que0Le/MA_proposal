@@ -5,3 +5,5 @@ thesis_template.pdf
 *.synctex.gz
 resources/images/example*.pdf
 resources/images/job_lifecycle.pdf
+short_proposal.aux
+short_proposal.pdf
