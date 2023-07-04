@@ -6,6 +6,8 @@ PATH=/usr/local/texlive/2021/bin/x86_64-linux:$PATH
 
 make all
 make debug
+#
+pdflatex short_proposal.tex
 ```
 
 
