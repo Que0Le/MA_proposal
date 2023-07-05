@@ -1,13 +1,13 @@
 \pdfbookmark{Abstract}{abstract}
 \chapter*{Abstract}
 
-Tunneling refers to the method of securely and isolatedly transferring network packets between two hosts over a public network, often without revealing their actual addresses to the applications. 
+Tunneling refers to the method of securely and isolatedly transferring of network packets between two hosts over a public network, with the possibility of not revealing their actual addresses to the applications. 
 This is achieved by encapsulating the real traffic of the application before sending it, and then unwrapping before delivering to the associated virtual addresses.
 % The flow of packets in tunneling is comparable to the movement of vehicles through a tunnel, hence the analogy. 
 Various tunnel protocols exist, ranging from high-level protocols like SSH tunneling at the application layer to lower-level protocols like IPsec at the network layer, and PPTP, PPPoE, and L2TP at the link layer.
 The implementation of multipath tunneling can outperform these traditional single-line solutions in terms of performance factors such as bandwidth, reliability, and latency.
 This document will explore the concept of multipath tunneling and present a low-level implementation using the eBPF-based AF\_XDP socket, which is known for its maximum performance and system reliability.
-The results of this project can serve as a proof of concept and lay the groundwork for further research on algorithms and protocols, as well as applications such as overhauling the 5G core network.
+As the result, the tunnel can serve as a proof of concept and lay the groundwork for further research on algorithms and protocols, as well as applications such as overhauling the 5G core network. \todo{review: this is the abstract for the proposal. I have no data to back the claim (better throughput, ... as suggested), so I feel more comfortable leaving only  the vision of the project like this}
 
 % {\setlength{\parindent}{-.1cm}%
 % \sidenote{Research Area:\\Foo Bar}%

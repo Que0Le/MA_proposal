@@ -7,7 +7,7 @@ Similarly, network tunneling is a mean to organize traffic between host A and B 
 
 \begin{itemize}
     \item Abstracts the underlying path over the public network: Applications binding to the tunnel are not aware of the real paths that packets take.
-    \item Encapsulates and encrypts: Middle man - even can intercept the traffic - can't always determine if a network frame belongs to the tunnel or a tunnel is being used, nor decrypt the content.
+    \item Encapsulates and encrypts the traffic: Man in the middle attack can't always determine if a network frame belongs to the tunnel or a tunnel is being used, nor decrypt the content.
 \end{itemize}
 
 % A \ac{VPN} is a application build on top of a tunnel to connect 2 networks, effectively allow its host to access the other internal network remotely.
@@ -23,11 +23,11 @@ Despite variations in their operational level (network or data link layer) and o
 % These require centralized orchestration level of control over all communication channels by a control plane, which doesn't exist for these protocols.
 A connection that supports the concept of \textit{multipath} utilizes multiple network links to enhance reliability through redundancy or increase bandwidth by combining links. 
 % However, these characteristics are more applicable to environments such as infrastructure, data centers, or industrial applications rather than regular end-user usage. 
-Protocols like \ac{MPTCP} and \ac{SCTP} operate in this manner, but they are implemented as non-sharable connections.
-A non-share connection is initiated similarly to establishing a socket and can only be utilized by the program initiating it. This limitation severely restricts the ability to effectively control, schedule, and share multipath resources among multiple applications. 
-Tasks such as prioritization and buffering become challenging without a centralized control plane that can orchestrate communication channels, which is currently absent in these protocols.
+Protocols like \ac{MPTCP} and \ac{SCTP} operate in this manner, but they are implemented as non-sharable connections and can only be utilized by the program initiating it. 
+This limitation restricts the ability to effectively control, schedule, and share multipath resources among multiple applications. 
+For instance, support for multiple flows with different quality of service requirements and priorities becomes challenging without a centralized control plane, which is currently absent in these protocols.\todo{review needed}
+\\
 
-%
 We propose another tunnel implementation: \ac{MTX}. 
 % The tunnel will have multipath support by design, allow multiple applications to share the connection simultaneously, and be built based on Linux's \ac{xdppage} socket family.
 % Using the latest native Linux's technology, the implementation is expected to performance-wise outperform any user space implementation while retain compatibility with existing systems and code base's simplicity. 
@@ -37,8 +37,9 @@ The tunnel is designed to support multipath capabilities and allow multiple appl
 It is constructed based on Linux's \ac{xdppage} socket family, leveraging the latest native Linux technology. 
 This implementation is expected to outperform user space implementations in terms of performance while maintaining compatibility with existing systems and ensuring simplicity in the code base.
 The support for multiple connection links offers reliability, high raw-bandwidth, and a comprehensive configuration set for applications bound to the tunnel that is well-suited for demanding use cases such as industry, data centers, and telecommunication hubs.
-This document will investigate an enhancement for the 5G's \ac{gptu} protocol using the \ac{MTX} library. 
-The \ac{gptu} protocol is an appropriate match for demonstrating the capabilities of the \ac{MTX} system since it facilitates communication between the UPF and gNodeB functions in a 5G system, demanding both bandwidth and stability.
+For the experiment purpose, an enhancement for the 5G's \ac{gptu} protocol using the \ac{MTX} library will be investigated and developed. 
+The \ac{gptu} protocol is an appropriate match for demonstrating the capabilities of the \ac{MTX} system since it facilitates communication between the UPF and gNodeB functions in a 5G system (\Cref{fig:introduction:3gpp_5g_data_plane_protocol}), demanding both bandwidth and stability.
+\todo{review needed}
 % The \ac{gptu} protocol facilitates communication between the UPF and gNodeB functions in a 5G system, demanding both bandwidth and stability. 
 % Therefore, it is an appropriate match for demonstrating the capabilities of the \ac{MTX} system. \todo{improve}
 %
@@ -51,55 +52,18 @@ The \ac{gptu} protocol is an appropriate match for demonstrating the capabilitie
 \end{figure}
 
 
-While it is possible to establish a connection between two applications using a single link, improving the bandwidth and reliability to support high-demand applications is a challenging endeavor. 
-In \Cref{sec:introduction:problem_statement}, we will outline the difficulties inherent in the current single-link methods and explore how the multipath approach can effectively tackle these issues.
+% While it is possible to establish a connection between two applications using a single link, improving the bandwidth and reliability to support high-demand applications is a challenging endeavor. 
+% In \Cref{sec:introduction:problem_statement}, we will outline the difficulties inherent in the current single-link methods and explore how the multipath approach can effectively tackle these issues.
 
 \section{Problem Statement}\index{Requirements}\label{sec:introduction:problem_statement}
-% In this section, the problems with single-link tunnel will be presented.
-% Combine links
-% The most commonly used technologies for communication in data center and \ac{HPC} environment are Ethernet and \ac{infinibandpage} (\Cref{fig:introduction:Interconnect_Technologies_500_supercomp}), which currently offer 100-200Gb/s bandwidth per line \cite{ethernet_roadmap}\cite{infiniband_roadmap}.
-% These kind of bandwidth between computers (or inter-system) are nonetheless impressive, yet not comparable to the system's internal connection, i.e inter-chiplet bridge \textit{Infinity Fabric} used in AMD's Zeppelin SoC provides 256GB/s in-package bandwidth \cite{burd_zeppelin_2019}, and up to 800GB/s connection in GPUs peer-to-peer test \cite{amd_infinity_architecture}.
-% This means even when invested in the current latest networking hardware, the connection between computer instances might be the bottleneck for certain applications that require distributed computation, for example large \ac{AI} or simulation model.
-% In this case, a multipath tunnel can hide hide the multipath details of merging multiple links from the applications, effectively scales up the network capacity horizontally.
-% The tunnel thus allow data center usage benefits from having larger combined bandwidth using current technology, but also is a necessary tool to overcome eventual physical and economical limitation in the future.
-% For less demanding usages, aggregation is an affordable method to build fast connection from available hardware \todo{improve}.
-Ethernet and InfiniBand are the most prevalent communication technologies in data centers and \ac{HPC} environments (\Cref{fig:introduction:Interconnect_Technologies_500_supercomp}). 
-Currently, these technologies provide bandwidths of 100-200Gb/s per line \cite{ethernet_roadmap}\cite{infiniband_roadmap}. 
+While it is possible to establish a connection between two applications using a single link, improving the bandwidth and reliability to support high-demand applications is a challenging endeavor. 
+Currently, Ethernet and InfiniBand are the most prevalent communication technologies in data centers and \ac{HPC} environments (\Cref{fig:introduction:Interconnect_Technologies_500_supercomp}) which offer a line capacity ranging from 100-200Gb/s \cite{ethernet_roadmap}\cite{infiniband_roadmap}. 
 While this bandwidth is impressive for inter-system communication, it cannot match the internal connections within a system. 
 For instance, AMD's "Infinity Fabric" bridge offers an in-package bandwidth of 256GB/s on Zeppelin SoC family \cite{burd_zeppelin_2019}, and up to 800GB/s in peer-to-peer tests between GPUs using more bands \cite{amd_infinity_architecture}.
-This indicates that even with the latest networking hardware, the connection between computer instances can become a bottleneck for distributed data-intensive applications, for instance large \ac{AI} model or computer simulation. 
-% In such cases, a multipath tunnel can abstract the complexity of merging multiple links from the applications, effectively scaling up the network capacity horizontally. 
-In such cases, a multipath tunnel can take over the complexity of merging multiple links and exposed only the combined connection to the applications, effectively scaling up the network capacity horizontally. 
-% Consequently, the multipath tunnel enables data centers to benefit from larger combined bandwidth using current technology and serves as a necessary tool to overcome future physical and economic limitations.
-This way, a larger combined bandwidth can be formed using current technology and serves as a necessary tool to overcome future physical and economic limitations.
-% For less demanding use cases, aggregation presents an affordable method to build fast connections using available hardware.
-%
-% Reliability
-% Connection's reliability is closely related to the failure probabilities of the individual links and nodes (component reliability, can directly effect service availability) \cite{shooman_algorithms_1995} and the \ac{QoS} parameters \cite{gozdecki_quality_2003}.
-% Common connection's \ac{QoS}  parameters can be named: latency, peak throughput, jitter.
-% Depends on the use case, reliability of the connection can be a \ac{QoS} measurement factor (i.e commercial network provider) or a strict requirement (i.e critical application).
-% Generally, 2 non-exclusive strategies are often used to increase a connection's reliability: through fortifying individual link, or redundancy.
-% A connection's failure probability can be reduced by upgrading to a more resilient but expensive link or equipping with multiple failover lines. 
-% Similarly, while better hardware can eliminate many \ac{QoS} inadequacy problems, having multiple links (or routes) each optimized for a type of appliance is certainly more suitable and affordable for the operator, especially if the data traffic is heterogeneous \cite{chen_overview_1998}.
-% A multipath tunnel with flow-aware capability can be used in this case to manage the underlying links as an abstraction layer for the applications that utilize the connection. \todo{improve} \todo{more about QoS}
-
-The reliability of a connection is closely tied to the failure probabilities of the individual links and nodes, which directly impacts service availability \cite{shooman_algorithms_1995}. 
-Additionally, \ac{QoS} parameters such as latency, peak throughput, and jitter play a crucial role \cite{gozdecki_quality_2003}.
-Depending on the use case, connection reliability can either serve as a \ac{QoS} measurement factor (e.g., for commercial network providers) or a strict requirement (critical applications). 
-It is commonly acknowledged that ensuring a 99.99 percent reliability comes with a significant price tag, and pushing for such guarantees will likely result in exponential cost escalation.
-Generally, there are two non-exclusive strategies commonly employed to enhance connection reliability: strengthening individual links or incorporating redundancy.
-% Upgrading to more resilient, albeit costly, hardware links or implementing multiple failover lines can reduce the probability of connection failures. 
-While superior hardware can reduce the probability of connection failures and address many \ac{QoS} inadequacies, having multiple links or routes optimized for specific applications is often a more practical and cost-effective approach for operators, particularly when dealing with heterogeneous data traffic \cite{chen_overview_1998}.
-In such cases, a multipath tunnel with flow-aware capabilities can be utilized as an abstraction layer to manage the underlying links for applications relying on the connection, which allows for improved reliability and more effective utilization of resources. 
-\todo{review}
-%  heterogeneous data traffic
-
-%%
-% Combine with a powerful CPU, networking application based on technologies such as \ac{dpdkpage} can saturate even a 100Gbit line using a single CPU core \cite{intel_dpdk_perf}. 
-% However, this can be improved by combining bandwidth of many links. 
-% A multipath tunnel will create a logical NIC for application, effectively abstracts the management, orchesteration tasks for the applications.
-% \todo{sota: how these are being done in real life?}
-% Such method can be useful for long term and short term usage: using existing technology and hardware to achieve higher bandwidth to reduce cost, and overcome physical limitation.
+This indicates that the connection between computer instances can become a bottleneck for distributed data-intensive applications, for instance large \ac{AI} models or computer simulations. 
+In such cases, a multipath tunnel can provides an abstracted connection, which hides the lines combination details from the application and thus effectively scales up the network capacity horizontally.
+% In such cases, a multipath tunnel can take over the complexity of merging multiple links and exposed only the combined connection to the applications, effectively scaling up the network capacity horizontally. 
+This way, a larger combined bandwidth can be formed using current technology and serves as a necessary tool to overcome future physical and economic limitations. \todo{review needed}
 
 \begin{figure}[H]
 	\centering
@@ -108,7 +72,19 @@ In such cases, a multipath tunnel with flow-aware capabilities can be utilized a
     \label{fig:introduction:Interconnect_Technologies_500_supercomp}
 \end{figure}
 
-\todo{other: latency, ...}
+The reliability of a connection is closely tied to the failure probabilities of the individual links and nodes, which directly impacts service availability \cite{shooman_algorithms_1995}. 
+Additionally, \ac{QoS} of many applications is affected by network parameters such as latency, peak throughput, and jitter \cite{gozdecki_quality_2003}.
+Depending on the use case, connection reliability can either serve as a \ac{QoS} measurement factor (e.g., for commercial network providers) or a strict requirement (critical applications). 
+It is commonly acknowledged that ensuring a 99.99 percent reliability comes with a significant price tag, and pushing for such guarantees futher will likely result in an exponential cost escalation.
+Generally, there are two non-exclusive strategies commonly employed to enhance connection reliability: strengthening individual links or incorporating redundancy.
+\\
+
+While superior hardware can reduce the probability of connection failures and address many \ac{QoS} inadequacies, having multiple links or routes optimized for specific applications is often a more practical and cost-effective approach for operators, particularly when dealing with heterogeneous data traffic \cite{chen_overview_1998}.
+In such cases, a multipath tunnel with flow-aware capabilities can be utilized as an abstraction layer to manage the underlying links for applications relying on the connection, which allows for improved reliability and more effective utilization of resources. 
+\todo{review}
+
+
+% \todo{other: latency, ...}
 
 % Perf: userspace vs kernelspace process
 % Omitting trivial tasks such as authentication and handshake, tunneling operation including the following steps: acquiration of ingress data stream (send to tunnel by application), process of ingress data (convert data into stream of tunnel packets, often through encapsulating with tunnel header, encrypting, compressing), and reverse on the receiving end (extrating original data from tunnel packets and delivering to application) \todo{cite+improve}.
