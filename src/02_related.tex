@@ -72,65 +72,13 @@ These components are categorized into two groups: the Control plane and the Data
 \end{figure}
 
 As mentioned in \Cref{sec:related_work:mp_connection:SCTP}, the control plane uses \ac{SCTP} protocol with multipath support for its internal communication.
-The Data plane relies on \ac{gptu} protocol with \ac{UDP} as the transport protocol to deliver high volume of data between \ac{UE} and \ac{DN} (see \Cref{fig:introduction:3gpp_5g_data_plane_protocol}), which require powerful processing power and high capable network link.
-According to \ac{3GPP}, an non-exhausted list of \ac{UPF}'s responsibility is \textit{packet routing \& forwarding}, packet \textit{inspection}, \textit{buffering}, \textit{sending} and \textit{forwarding} \cite{3gpp_5g_system_architect_spec_release_18}.
-In order to meet the \ac{SLA} and \ac{QoS} requirements, the \ac{UPF} needs to be deployed in various locations, such as the edge (edge and campus), regional sites, and central data centers \cite{zte_upf_full_whitepaper}. 
-The size and form of each \ac{UPF} instance vary significantly depending on factors such as the number and size of downstream and upstream functions it manages and responds to, as depicted in \Cref{fig:related_work:Deployment_Requirements_of_Full_Scenario_UPF}.
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=1.0\textwidth]{resources/images/Deployment_Requirements_of_Full_Scenario_UPF.PNG}
-	\caption{ZTE's White Paper: Deployment Requirements of Full-Scenario UPF \cite{zte_upf_full_whitepaper}}
-    \label{fig:related_work:Deployment_Requirements_of_Full_Scenario_UPF}
-\end{figure}
-
-% Although no feature equivalent to multipath is built in the \ac{gptu} protocol, data plane's implementations come up with their own technology stack for high performance. 
-While the \ac{gptu} protocol does not have a built-in feature equivalent to multipath, vendors have developed their own data plane technology stack to achieve high performance.
+For the Data Plane, while the \ac{gptu} protocol does not have a built-in feature equivalent to multipath, vendors have developed their own data plane technology stack to achieve high performance.
 \ac{NEC} demonstrated its containerized \ac{UPF} solution's capability by handling 640Gbps bandwidth on 1 single 2x32 cores server \cite{nec_upf_whitepaper}.
-\ac{dpdkpage} library was used to forward the enormous data flows to the containers (\Cref{fig:related_work:640_nec_upf_system}).
+\ac{dpdkpage} library was used to forward the enormous data flows.
 \ac{ZTE} offers hardware platforms and software stack that use a combination of \ac{dpdkpage}, \ac{sriov} and hardware acceleration technology to support a wide range of bandwidth capacity from 5Gbps to 200Gbps \cite{zte_upf_full_whitepaper}, and up to 462Gbps in a test scenario in cooperation with Intel \cite{zte_5g_core_upf_impl}.
 
 Our \ac{MTX} library is positioned as an alternative to packet handling components based on \ac{dpdkpage} and \ac{sriov}. 
 In the subsequent sections, we will introduce these two technologies and highlight the potential advantages offered by our solution. \todo{I keep this text since MTX offers no perf improvement but usability and compability}
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=1.0\textwidth]{resources/images/640_nec_upf_system.PNG}
-	\caption{NEC's containerized UPF software (8 pods per server) on a platform configured with Linux and Kubernetes \cite{nec_upf_whitepaper}}
-    \label{fig:related_work:640_nec_upf_system}
-\end{figure}
-
-\subsection{Data Plane Development Kit}
-\ac{dpdkpage} is a library initially developed by Intel engineer Venky Venkatesan and currently maintained by the Linux Foundation. 
-It provides a solution that contains a collection of libraries, poll drivers and configuration designed to accelerate packet processing workloads. 
-By decoupling the NIC and CPU cores from the kernel, the library establishes a highly efficient and high-throughput data path, thus eliminates the overhead introduced by Linux kernel's network stack \cite{kourtis_enhancing_2015}. 
-\ac{dpdkpage} has been widely utilized in various projects, including pfSense, Open vSwitch/OpenStack, Intel's DDP, OpenFlow, and 5G UPF implementations \cite{intel_ddp_ethernet_800}\cite{pongracz_removing_2013}\cite{zte_5g_core_upf_impl}\cite{nec_upf_whitepaper}. 
-% Recently, the \ac{dpdkpage} team proposed a QoS plugin enhancement at the GTP-U packet stream level for UPF \cite{dpdk_upf_extension}.
-
-From a technical standpoint, \ac{dpdkpage} is a complex kernel-bypassing library to process network packets that can deliver packets to application in user space with very low latency.
-In addition, \ac{dpdkpage} offers a range of powerful features, including Crypto, DMA direct memory access, CUDA GPU utilization, and Machine Learning Device Driver \cite{dpdk_guide_page}. 
-\ac{dpdkpage} is however, not a networking stack and has no Layer-3 forward, IPsec, firewall features \cite{old_dpdk_page}, thus forces developers to maintain their own code base for such purposes.
-Therefore, using \ac{dpdkpage} in small open-source projects may necessitate more extensive maintenance and configuration compared to utilizing an in-kernel alternative like \ac{xdppage} socket, which will be utilized to construct our MTX library.
-Unlike \ac{dpdkpage}, \ac{xdppage} socket has no monopoly on the \ac{NIC}, thus allows the kernel to manage and share the hardware resource to other applications.
-
-\subsection{Single Root I/O Virtualization}
-\ac{sriov} is a \ac{PCIe} specification that allows a physical \ac{PCIe} device to be partitioned into logical devices which appear as multiple physical devices in the guest \ac{OS} \cite{ibm_sriov}\cite{vmware_sriov}. 
-By providing independent memory space, interrupts, and \ac{DMA} streams for each virtual machine, the natively shared devices achieve low latency and lower CPU utilization compared to virtual devices provided by traditional \ac{VMM}'s Virtual Switch or  I/O emulation layer \cite{intel_sriov}.
-%  (see \Cref{fig:related_work:intel_sriov_Natively_and_Software_Shared}) \cite{intel_sriov}.
-As the \ac{sriov} specification is developed by \ac{PCISIGfootnote}, the consortium responsible for the \ac{PCIe} standard, there is no risk of vendor lock-in or significantly hidden cost.
-A similar but less sophisticated method - namely \ac{PCIe} passthrough - to eliminates emulation overhead on I/O operation in hypervisor environment is completely disconnecting the \ac{PCIe} device from the host kernel and connecting it to the guest \ac{OS} instead, although this makes device sharing impossible.
-It is also important to note that the \ac{sriov} specification is specifically designed for passing resources to and from a hypervisor environment, which is not conflict with our intended scenario.
-The \ac{MTX} is designed as a general-purpose multipath tunnel that functions on \ac{NIC}s, making \ac{sriov} technology the underlying infrastructure layer for enabling \ac{MTX}'s \ac{xdppage} sockets to operate on the native shared devices.
-This is similar to how \ac{ZTE} used \ac{sriov} in conjunction with \ac{dpdkpage} in their software stack \cite{zte_upf_full_whitepaper}.
-
-% \begin{figure}[H]
-% 	\centering
-% 	\includegraphics[width=1.0\textwidth]{resources/images/intel_sriov_Natively_and_Software_Shared.PNG}
-% 	\caption{Natively (3 virtual machines on the left) and Software Shared \cite{intel_sriov}. The function type \textit{Virtual Function} (VF) can access a limited set of Base Address Register (BAR) descriptors (which holds the address of mapped memory of the device, or so called configuration space) and other parameters compared to the type \textit{Physical Function}. VF is designed to provide only the resources necessary for data movement.}
-%     \label{fig:related_work:intel_sriov_Natively_and_Software_Shared}
-% \end{figure}
-
-
 
 \section{MTX Enhancement for 5G Data Plane}\index{MTX Enhancement for 5G Data Plane}
 \label{sec:related_work:5g_dataplane_enhancement}
