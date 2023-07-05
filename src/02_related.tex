@@ -1,6 +1,7 @@
 \cleardoublepage\chapter{Related Work}\label{sec:related_work}\minitoc\vspace{.5cm}\index{SotA}
 
-The concept of multipath is well-established, and in this section we will explore existing multipath protocols, their characteristics, and highlight the unique aspects of our approach. 
+The concept of multipath is well-established
+In this section we will explore existing multipath protocols, their characteristics, and highlight the unique aspects of our approach. 
 Additionally, we will discuss the building block for the MTX as well as the use cases for the \ac{MTX} library. 
 Finally, we will take a closer look at the design of the 5G system, with a specific focus on the Data Plane, to explain our plan for showcasing the multipath tunnel using the \ac{gptu} protocol.
 
@@ -29,23 +30,21 @@ The data stage handles session management, congestion control overhead, and othe
 Unlike serving solely the caller, the multipath tunnel is designed to offer connection and flow management for multiple applications, enabling centralized resource management and scheduling.
 
 \subsection{Multipath TCP}\label{sec:related_work:mp_connection:MPTCP}
-% MultiPath TCP (MPTCP) is an effort towards enabling the simultaneous use of several IP-addresses/interfaces by a modification of TCP that presents a regular TCP interface to applications, while in fact spreading data across several subflows. Benefits of this include better resource utilization, better throughput and smoother reaction to failures. 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{resources/images/3G_WiFi_Handover_with_Multipath_TCP.PNG}
+	\caption{3G/WiFi Handover with Multipath TCP \cite{paasch_multipath_2014}. The MPTCP connection (in violet) persists despite of WiFi and 3G's unreliable connections. A weak WiFi signal can be indicative of the device moving beyond the coverage range of the router. The command \textit{REXMIT} changes the time-out value for each packet which is used for retransmitting packet. This indicates the TCP connection was trying to retransmit over the weakening WiFi connection.}
+    \label{fig:related_work:3G_WiFi_Handover_with_Multipath_TCP}
+\end{figure}
 
 \ac{MPTCP} is is a major extension to TCP to decoupling the transport layer by utilizing multiple TCP-based sub flows \cite{Bonaventure_mptcp_decoupling}.
 The protocol is showcased in both mobile and data center environments with distinct objectives. 
-% In addition to enhancing data center performance by employing \ac{MPTCP}'s distributed load-balancing across multiple paths, the protocol also provides redundancy and effective congestion management capabilities \cite{raiciu_improving_nodate}.
 \ac{MPTCP} enhances data center performance by employing \ac{MPTCP}'s distributed load-balancing across multiple paths, providing redundancy and effective congestion management capabilities \cite{raiciu_improving_nodate}.
 In the context of mobile hand-over capability, \ac{MPTCP} helps maintain TCP sessions while the user equipment moves continuously. 
 For instance, a smartphone can continue utilizing both LTE and Wi-Fi connections for a TCP session and predict the optimal route for transmitting most of the traffic. 
 By monitoring the radio signal strength, it becomes possible to anticipate potential disruptions in the Wi-Fi connection or when a user enters a building and encounters a loss of cellular signal. 
 The author argues that although maintaining two radios simultaneously consumes more power, it can potentially reduce the time required to establish new connections and transmit data \cite{paasch_multipath_2014}.
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=0.7\textwidth]{resources/images/3G_WiFi_Handover_with_Multipath_TCP.PNG}
-	\caption{3G/WiFi Handover with Multipath TCP \cite{paasch_multipath_2014}. The MPTCP connection (in violet) persists despite of WiFi and 3G's unreliable connections. A weak WiFi signal can be indicative of the device moving beyond the coverage range of the router. The command \textit{REXMIT} changes the time-out value for each packet which is used for retransmitting packet. This indicates the TCP connection was trying to retransmit over the weakening WiFi connection.}
-    \label{fig:related_work:3G_WiFi_Handover_with_Multipath_TCP}
-\end{figure}
 
 \subsection{Stream Control Transmission Protocol}\label{sec:related_work:mp_connection:SCTP}
 \ac{SCTP} introduces multiple addresses to the transport layer, which serves as failover or simultaneous sub-connection.
@@ -63,6 +62,13 @@ Notably, \ac{SCTP} is used in 5G core design for transmitting messages in Contro
 \section{Current 5G Deployment: Multipath in Action}\index{Current 5G Deployment: Multipath in Action}
 5G services and functions are designed to be deployed in containers and virtual machines, often on server-grade general purpose computers.
 These components are categorized into two groups: the Control plane and the Data plane (\Cref{fig:related_work:Non_Roaming_5G_System_Architecture_in_reference_point_representation}).
+\\
+
+As mentioned in \Cref{sec:related_work:mp_connection:SCTP}, the control plane uses \ac{SCTP} protocol with multipath support for its internal communication.
+For the Data Plane, while the \ac{gptu} protocol does not have a built-in feature equivalent to multipath, vendors have developed their own data plane technology stack to achieve high performance.
+\ac{NEC} demonstrated its containerized \ac{UPF} solution's capability by handling 640Gbps bandwidth on 1 single 2x32 cores server \cite{nec_upf_whitepaper}.
+\ac{dpdkpage} library was used to forward the enormous data flows.
+\ac{ZTE} offers hardware platforms and software stack that use a combination of \ac{dpdkpage}, \ac{sriov} and hardware acceleration technology to support a wide range of bandwidth capacity from 5Gbps to 200Gbps \cite{zte_upf_full_whitepaper}, and up to 462Gbps in a test scenario in cooperation with Intel \cite{zte_5g_core_upf_impl}.
 
 \begin{figure}[H]
 	\centering
@@ -70,12 +76,6 @@ These components are categorized into two groups: the Control plane and the Data
 	\caption{Adapted from 3GPP specification: Data and Control Plane in 3GPP's Non-Roaming 5G System Architecture in reference point representation \cite{3gpp_5g_system_architect_spec_release_18}}
 	\label{fig:related_work:Non_Roaming_5G_System_Architecture_in_reference_point_representation}
 \end{figure}
-
-As mentioned in \Cref{sec:related_work:mp_connection:SCTP}, the control plane uses \ac{SCTP} protocol with multipath support for its internal communication.
-For the Data Plane, while the \ac{gptu} protocol does not have a built-in feature equivalent to multipath, vendors have developed their own data plane technology stack to achieve high performance.
-\ac{NEC} demonstrated its containerized \ac{UPF} solution's capability by handling 640Gbps bandwidth on 1 single 2x32 cores server \cite{nec_upf_whitepaper}.
-\ac{dpdkpage} library was used to forward the enormous data flows.
-\ac{ZTE} offers hardware platforms and software stack that use a combination of \ac{dpdkpage}, \ac{sriov} and hardware acceleration technology to support a wide range of bandwidth capacity from 5Gbps to 200Gbps \cite{zte_upf_full_whitepaper}, and up to 462Gbps in a test scenario in cooperation with Intel \cite{zte_5g_core_upf_impl}.
 
 Our \ac{MTX} library is positioned as an alternative to packet handling components based on \ac{dpdkpage} and \ac{sriov}. 
 In the subsequent sections, we will introduce these two technologies and highlight the potential advantages offered by our solution. \todo{I keep this text since MTX offers no perf improvement but usability and compability}
