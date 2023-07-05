@@ -1,12 +1,12 @@
 \cleardoublepage\chapter{Related Work}\label{sec:related_work}\minitoc\vspace{.5cm}\index{SotA}
 
-The concept of multipath is well-established, and in this section we will explore notable existing multipath protocols, their characteristics, and highlight the unique aspects of our approach. 
-Additionally, we will discuss future use cases for the \ac{MTX} library and examine current solutions and technologies being utilized. 
+The concept of multipath is well-established, and in this section we will explore existing multipath protocols, their characteristics, and highlight the unique aspects of our approach. 
+Additionally, we will discuss the building block for the MTX as well as the use cases for the \ac{MTX} library. 
 Finally, we will take a closer look at the design of the 5G system, with a specific focus on the Data Plane, to explain our plan for showcasing the multipath tunnel using the \ac{gptu} protocol.
 
 \section{Tunneling}\index{Tunneling}
 \todo{these following are my words, but do I need cite here?}
-The concept of a tunnel draws inspiration from its real-world counterpart, which refers to a confined pathway constructed to direct transportation between two points, separate from the surrounding terrain. 
+The concept of a network tunnel draws inspiration from its real-world counterpart, which refers to a confined pathway constructed to direct transportation between two points, separate from the surrounding terrain. 
 In the physical sense, tunnels are often excavated deep beneath the earth's surface to bypass obstacles like mountains, rivers, or ocean channels.
 In the realm of networking, a tunnel can be perceived as a direct network pathway that enables access to another network from the network to which it is currently connected. 
 From an infrastructure standpoint, a tunnel serves as an abstraction layer that abstracts the actual traffic routing from the application and isolates the tunnel's traffic from public network traffic. 
@@ -15,8 +15,9 @@ Many tunnel protocols exist for different purposes: IPv4/IPv6 tunnels to enable 
 \ac{VPN}s are frequently utilized to remotely access a private network, such as connecting to university's network from home. 
 It also functions to conceal the origin of network traffic by making it appear as if it originates from the VPN server, which is useful for bypassing firewalls or restrictions applied by local network providers.
 The traffic can also be encrypted to add an extra layer of protection while accessing networks over untrusted connections, like public WLAN provided by coffee shops.
-There are several widely recognized VPN protocols, including WireGuard, OpenVPN, IPsec, Cisco AnyConnect VPN, L2TP/IPsec, SSTP (Secure Socket Tunneling Protocol), ... each embodies its unique philosophy, background, and intended field of application.
-
+Multiple VPN protocols are well-known and acknowledged, such as WireGuard, OpenVPN, IPsec, Cisco AnyConnect VPN, L2TP/IPsec, and SSTP (Secure Socket Tunneling Protocol). 
+Each protocol carries its distinct philosophy, background, and intended area of application. 
+MTX stood out by incorporating the multipath concept into its approach.
 
 \section{Multipath Connection}\index{Multipath Connection}\label{sec:related_work:mp_connection}
 Our primary emphasis is on establishing a connection between two points, irrespective of the number of physical transportation links.
@@ -41,7 +42,7 @@ The author argues that although maintaining two radios simultaneously consumes m
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=1.0\textwidth]{resources/images/3G_WiFi_Handover_with_Multipath_TCP.PNG}
+	\includegraphics[width=0.7\textwidth]{resources/images/3G_WiFi_Handover_with_Multipath_TCP.PNG}
 	\caption{3G/WiFi Handover with Multipath TCP \cite{paasch_multipath_2014}. The MPTCP connection (in violet) persists despite of WiFi and 3G's unreliable connections. A weak WiFi signal can be indicative of the device moving beyond the coverage range of the router. The command \textit{REXMIT} changes the time-out value for each packet which is used for retransmitting packet. This indicates the TCP connection was trying to retransmit over the weakening WiFi connection.}
     \label{fig:related_work:3G_WiFi_Handover_with_Multipath_TCP}
 \end{figure}
@@ -59,7 +60,7 @@ Notably, \ac{SCTP} is used in 5G core design for transmitting messages in Contro
 \end{figure}
 
 
-\section{5G Deployment and Multipath}\index{5G Deployment and Multipath}
+\section{Current 5G Deployment: Multipath in Action}\index{Current 5G Deployment: Multipath in Action}
 5G services and functions are designed to be deployed in containers and virtual machines, often on server-grade general purpose computers.
 These components are categorized into two groups: the Control plane and the Data plane (\Cref{fig:related_work:Non_Roaming_5G_System_Architecture_in_reference_point_representation}).
 
@@ -90,7 +91,7 @@ While the \ac{gptu} protocol does not have a built-in feature equivalent to mult
 \ac{ZTE} offers hardware platforms and software stack that use a combination of \ac{dpdkpage}, \ac{sriov} and hardware acceleration technology to support a wide range of bandwidth capacity from 5Gbps to 200Gbps \cite{zte_upf_full_whitepaper}, and up to 462Gbps in a test scenario in cooperation with Intel \cite{zte_5g_core_upf_impl}.
 
 Our \ac{MTX} library is positioned as an alternative to packet handling components based on \ac{dpdkpage} and \ac{sriov}. 
-In the subsequent sections, we will introduce these two technologies and highlight the potential advantages offered by our solution.
+In the subsequent sections, we will introduce these two technologies and highlight the potential advantages offered by our solution. \todo{I keep this text since MTX offers no perf improvement but usability and compability}
 
 \begin{figure}[H]
 	\centering
@@ -114,23 +115,24 @@ Unlike \ac{dpdkpage}, \ac{xdppage} socket has no monopoly on the \ac{NIC}, thus 
 
 \subsection{Single Root I/O Virtualization}
 \ac{sriov} is a \ac{PCIe} specification that allows a physical \ac{PCIe} device to be partitioned into logical devices which appear as multiple physical devices in the guest \ac{OS} \cite{ibm_sriov}\cite{vmware_sriov}. 
-By providing independent memory space, interrupts, and \ac{DMA} streams for each virtual machine, the natively shared devices achieve low latency and lower CPU utilization compared to virtual devices provided by traditional \ac{VMM}'s Virtual Switch or  I/O emulation layer (see \Cref{fig:related_work:intel_sriov_Natively_and_Software_Shared}) \cite{intel_sriov}.
+By providing independent memory space, interrupts, and \ac{DMA} streams for each virtual machine, the natively shared devices achieve low latency and lower CPU utilization compared to virtual devices provided by traditional \ac{VMM}'s Virtual Switch or  I/O emulation layer \cite{intel_sriov}.
+%  (see \Cref{fig:related_work:intel_sriov_Natively_and_Software_Shared}) \cite{intel_sriov}.
 As the \ac{sriov} specification is developed by \ac{PCISIGfootnote}, the consortium responsible for the \ac{PCIe} standard, there is no risk of vendor lock-in or significantly hidden cost.
 A similar but less sophisticated method - namely \ac{PCIe} passthrough - to eliminates emulation overhead on I/O operation in hypervisor environment is completely disconnecting the \ac{PCIe} device from the host kernel and connecting it to the guest \ac{OS} instead, although this makes device sharing impossible.
 It is also important to note that the \ac{sriov} specification is specifically designed for passing resources to and from a hypervisor environment, which is not conflict with our intended scenario.
 The \ac{MTX} is designed as a general-purpose multipath tunnel that functions on \ac{NIC}s, making \ac{sriov} technology the underlying infrastructure layer for enabling \ac{MTX}'s \ac{xdppage} sockets to operate on the native shared devices.
 This is similar to how \ac{ZTE} used \ac{sriov} in conjunction with \ac{dpdkpage} in their software stack \cite{zte_upf_full_whitepaper}.
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=1.0\textwidth]{resources/images/intel_sriov_Natively_and_Software_Shared.PNG}
-	\caption{Natively (3 virtual machines on the left) and Software Shared \cite{intel_sriov}. The function type \textit{Virtual Function} (VF) can access a limited set of Base Address Register (BAR) descriptors (which holds the address of mapped memory of the device, or so called configuration space) and other parameters compared to the type \textit{Physical Function}. VF is designed to provide only the resources necessary for data movement.}
-    \label{fig:related_work:intel_sriov_Natively_and_Software_Shared}
-\end{figure}
+% \begin{figure}[H]
+% 	\centering
+% 	\includegraphics[width=1.0\textwidth]{resources/images/intel_sriov_Natively_and_Software_Shared.PNG}
+% 	\caption{Natively (3 virtual machines on the left) and Software Shared \cite{intel_sriov}. The function type \textit{Virtual Function} (VF) can access a limited set of Base Address Register (BAR) descriptors (which holds the address of mapped memory of the device, or so called configuration space) and other parameters compared to the type \textit{Physical Function}. VF is designed to provide only the resources necessary for data movement.}
+%     \label{fig:related_work:intel_sriov_Natively_and_Software_Shared}
+% \end{figure}
 
 
 
-\section{5G Data Plane enhancement with MTX}\index{5G Data Plane enhancement with MTX}
+\section{MTX Enhancement for 5G Data Plane}\index{MTX Enhancement for 5G Data Plane}
 \label{sec:related_work:5g_dataplane_enhancement}
 In \Cref{fig:related_work:5g_dp_enhancement} we describe how data is moved between \ac{UE} and \ac{DN}, based on 3GPP specification and various sources.
 A \ac{PDU} session is established to create a logical data path between \ac{UE} and \ac{UPF}.
@@ -140,7 +142,23 @@ The \ac{eCPRI} protocol connects front-haul network and moves user data, control
 \ac{gptu} connection - often called \textit{tunnel} - helps transferring user data between middle-haul and back-haul networks in UDP packets.
 Data in different categories receives forwarding treatment differently, depends on the priority, subscription, ... 
 This is managed by splitting the data into streams (called \ac{QoS} Flow, marked with QoS Flow Identification (QFI)), each is governed with different rule set (QoS rules).
+\\
 
+Two potential improvements can be applied to the 5G network with out MTX tunnel:
+\begin{itemize}
+    \item N6 connection between UPF (also N9 i.e between UPF-E and UPF-C) and Data network: enhanced by prioritized, flow-aware, high bandwidth multipath tunnel. 
+	To meet differentiated SLA requirements for latency, bandwidth and reliability, UPF needs to be deployed at different positions including central DC, regional DC, edge DC and campus DC. 
+	MTX can help saturating physical links coup with support large number of UEs.
+    \item 5G user plane:  
+	The back-haul N3 connection between gNodeB-UPF, and mid-haul F1 connection between gNodeB-CU and -DU relied on message-based protocol \ac{gptu} (the character "U" means "user data tunneling") to relay traffic within a PDP session.
+\end{itemize}
+
+% \begin{figure}[H]
+% 	\centering
+% 	\includegraphics[width=0.8\textwidth]{resources/images/3gpp_5g_system_overview.png}
+% 	\caption{3GPP's 5G System Overview \cite{3gpp_5g_system_overview}}
+%     \label{fig:related_work:3gpp_5g_system_overview}
+% \end{figure}
 
 \begin{figure}[H]
 	\centering
@@ -151,202 +169,17 @@ This is managed by splitting the data into streams (called \ac{QoS} Flow, marked
 
 In actual deployed systems, \ac{gptu} tunnels are typically established and configured professionally on top of multiple links that are aggregated and managed by a software stack, for instance \ac{dpdkpage} and \ac{sriov}, which involve costly software and (powerful and specifically chosen) hardware that lack flexibility.
 The alternative, open source implementations usually suffers from performance losses due to inefficiency, as noted in Open5GS discussion \cite{open5gs_github_udp_perf_cap}\cite{open5gs_github_dpdk}.
+\\
 
-Our goal is to tackle the performance and usability issues by exploring the development of a straightforward yet robust multipath tunnel capable of functioning in both physical and virtual environments. 
+One of the project's goals is to tackle the performance and usability issues by exploring the development of a straightforward yet robust multipath tunnel capable of functioning in both physical and virtual environments. 
 To ensure ease of maintenance and facilitate compatibility with other protocols, we aim for a tunnel code base that remains simple and minimizes the need for extensive modifications, which is why \ac{xdppage} has been selected as the preferred transport method.
 For the testing phase, we have chosen the \ac{gptu} protocol due to its diverse range of requirements that can be supported by MTX, including flow-awareness, high throughput, low latency, and a comprehensive set of configuration options.
 
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=1.0\textwidth]{resources/images/gptu_header_and_gpdu_stack.PNG}
-	\caption{3GPP: GPT-U header and G-PDU Protocol Stack built on top of UDP/IP protocol \cite{3gpp_gptu}}
-    \label{fig:related_work:gptu_header_and_gpdu_stack}
-\end{figure}
-
-
-
 % \begin{figure}[H]
 % 	\centering
-% 	\includegraphics[width=1.0\textwidth]{resources/images/principle_for_classification_and__Plane_marking_for_QoS_Flows.PNG}
-% 	\caption{The principle for classification and User Plane marking for QoS Flows and mapping
-% 	to AN Resources \cite{3gpp_5g_system_architect_spec_release_18}}
-%     \label{fig:related_work:principle_for_classification_and__Plane_marking_for_QoS_Flows}
+% 	\includegraphics[width=1.0\textwidth]{resources/images/gptu_header_and_gpdu_stack.PNG}
+% 	\caption{3GPP: GPT-U header and G-PDU Protocol Stack built on top of UDP/IP protocol \cite{3gpp_gptu}}
+%     \label{fig:related_work:gptu_header_and_gpdu_stack}
 % \end{figure}
 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=.55\textwidth]{resources/images/example3}
-%     \caption{Related area 1 within the structure of research}\label{fig:hourglass:ra1}
-% \end{figure}
-
-% \sidenote{Overview}
-% \todomid{write about \Cref{fig:hourglass:ra1}}
-
-% \sidenote{Focus}
-% \todomid{write}
-
-% \subsection{Specific Example 1}
-
-% \sidenote{Definition}
-% \todomid{write}
-
-% \sidenote{Issues}
-% \todomid{write}
-
-% \subsection{Specific Example 2}
-
-% \sidenote{Definition}
-% \todomid{write}
-
-% \sidenote{Implementations}
-% \todomid{write}
-
-% \sidenote{Research}
-% \todomid{write}
-
-% \sidenote{Standards}
-% \todomid{write}
-
-% \sidenote{Adoption}
-% \todomid{write}
-
-% \subsection{Specific Example 3}\index{Example 3}
-
-% \sidenote{Transition}
-% \todomid{write about \Cref{fig:sota:trans}}
-
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=.85\textwidth]{resources/images/example3}
-%     \caption{Comparison of Example 2 and Example 3 (based on~\cite{li2002design})}\label{fig:sota:trans}
-% \end{figure}
-
-% \sidenote{Standards}
-% \todomid{write}
-
-% \sidenote{Extension}
-% \todomid{write}
-
-% \sidenote{Other Standards}
-% \todomid{write}
-
-% \sidenote{Something}
-% \todomid{write}
-
-% \sidenote{Something}
-% \todomid{write}
-
-% \sidenote{Something}
-% \todomid{write}
-
-% \sidenote{Something}
-% \todomid{write}
-
-% \sidenote{Something}
-% \todomid{write}
-
-% \sidenote{Something}
-% \todomid{write}
-
-% \section{Related Area 2}\index{Related Area 2}
-
-% \sidenote{Overview}
-% \todomid{write}
-
-% \sidenote{Focus}
-% \todomid{write about \Cref{fig:sota:ra2}}
-
-% \begin{figure}[!hbtp]
-%     \centering
-%     \includegraphics[width=1\textwidth]{resources/images/example3}
-%     \caption{Related Area 2}\label{fig:sota:ra2}
-% \end{figure}
-
-% \sidenote{Something}
-% \todomid{write}
-
-% \subsection{Specific Example 1}
-
-% \sidenote{Definition}
-% \todomid{write}
-
-% \sidenote{Issues}
-% \todomid{write}
-
-% \subsection{Specific Example 2}
-
-% \sidenote{Definition}
-% \todomid{write}
-
-% \sidenote{Implementations}
-% \todomid{write}
-
-% \sidenote{Research}
-% \todomid{write}
-
-% \sidenote{Standards}
-% \todomid{write}
-
-% \sidenote{Adoption}
-% \todomid{write}
-
-
-% \section{Related Area 3}\index{Related Area 3}
-
-% \sidenote{Overview}
-% \todomid{write}
-
-% \sidenote{Focus}
-% \todomid{write about \Cref{fig:sota:ra3}}
-
-% \begin{figure}[!hbtp]
-%     \centering
-%     \includegraphics[width=1\textwidth]{resources/images/example3}
-%     \caption{Related Area 3}\label{fig:sota:ra3}
-% \end{figure}
-
-% \sidenote{Something}
-% \todomid{write}
-
-% \subsection{Specific Example 1}
-
-% \sidenote{Definition}
-% \todomid{write}
-
-% \sidenote{Issues}
-% \todomid{write}
-
-% \subsection{Specific Example 2}
-
-% \sidenote{Definition}
-% \todomid{write}
-
-% \sidenote{Implementations}
-% \todomid{write}
-
-% \sidenote{Research}
-% \todomid{write}
-
-% \sidenote{Standards}
-% \todomid{write}
-
-% \sidenote{Adoption}
-% \todomid{write}
-
-% \section{Conclusion}
-
-% \sidenote{Summary}
-% \todomid{write}
-
-% \sidenote{Takeaway 1}
-% \todomid{write}
-
-% \sidenote{Takeaway 2}
-% \todomid{write}
-
-% \sidenote{Takeaway 3}
-% \todomid{write}
-
-% \sidenote{Next chapter}
-% \todomid{write}
