@@ -6,33 +6,8 @@ By employing AF\_XDP sockets for the Receiver-Transmitter layer (RX-TX), we can 
 Thanks to the secure design of the eBPF virtual machine architecture, this approach remains safer compared to utilizing kernel modules or kernel code used by Wireguard, OpenVPN, or IPsec.
 In this chapter, we will explore the concept and design of the tunnel by examining its intended features and components.
 
-\section{Characteristics of MTX}
-At the conclusion of our project, we aim to provide an MTX library equipped with a comprehensive range of features, including:
-
-\begin{itemize}
-	\item Embrace a contemporary approach to system and network programming with the utilization of eBPF technology, ensuring performance, safety, and freedom from legacy code.
-	\item Highly likely to outperform alternative user-space approaches significantly.
-	\item Enhance redundancy and bolster connection reliability.
-	\item Potential for improved latency by leveraging efficiency and harnessing the power of multipath.
-	\item Address the varying requirements of different stream types by optimizing line utilization: bandwidth for data-intensive tasks, low latency for voice-over-IP, and reliable transmission for critical messages.
-\end{itemize}
-
-The MTX tunnel incorporates a flexible policy framework at multiple layers, enabling the utilization of algorithms or configurations. 
-This offers a wide array of options for customization, including at:
-\begin{itemize}
-	\item Data link layer: determining which streams can utilize specific links, assigning priorities, and implementing load distribution policies.
-	\item Network layer: selecting the carrier protocol (IPv4/v6) and specifying the UDP port.
-	\item Application layer: prioritizing applications, defining buffer fetching timeouts, reserving buffers for low-latency usage, and more.
-\end{itemize}
-
-Ideally, a tunnel control plane will operate in the background after initiation, effectively managing the streams utilized by various applications. 
-These applications will register their usage with the tunnel control plane and interact with the data plane through shared buffers. 
-Parameters can be individually configured for each application.
-Additionally, we will explore the feasibility of creating a TUN/TAP interface to serve as an intermediate communication layer between the MTX tunnel and applications. 
-This approach, commonly employed by VPN programs, enables multiple applications to utilize the tunnel connection without requiring modifications to their source code.
-
 \clearpage
-\section{Implementation details}
+\section{Design and Implementation Details}
 
 \begin{figure}[H]
 	\centering
@@ -64,3 +39,29 @@ Data plane functionality is divided into two main paths: the TX path and the RX 
 The control plane plays a vital role in the system as it handles various interactions with the application (notation \textit{7}). 
 It is responsible for configuration management, initiation, termination, and runtime information exchange. 
 The control plane acts as the central control hub, governing and coordinating all other components of the tunnel.
+
+
+\section{Characteristics of MTX}
+At the conclusion of our project, we aim to provide an MTX library equipped with a comprehensive range of features, including:
+
+\begin{itemize}
+	\item Embrace a contemporary approach to system and network programming with the utilization of eBPF technology, ensuring performance, safety, and freedom from legacy code.
+	\item Highly likely to outperform alternative user-space approaches significantly.
+	\item Enhance redundancy and bolster connection reliability.
+	\item Potential for improved latency by leveraging efficiency and harnessing the power of multipath.
+	\item Address the varying requirements of different stream types by optimizing line utilization: bandwidth for data-intensive tasks, low latency for voice-over-IP, and reliable transmission for critical messages.
+\end{itemize}
+
+The MTX tunnel incorporates a flexible policy framework at multiple layers, enabling the utilization of algorithms or configurations. 
+This offers a wide array of options for customization, including at:
+\begin{itemize}
+	\item Data link layer: determining which streams can utilize specific links, assigning priorities, and implementing load distribution policies.
+	\item Network layer: selecting the carrier protocol (IPv4/v6) and specifying the UDP port.
+	\item Application layer: prioritizing applications, defining buffer fetching timeouts, reserving buffers for low-latency usage, and more.
+\end{itemize}
+
+Ideally, a tunnel control plane will operate in the background after initiation, effectively managing the streams utilized by various applications. 
+These applications will register their usage with the tunnel control plane and interact with the data plane through shared buffers. 
+Parameters can be individually configured for each application.
+Additionally, we will explore the feasibility of creating a TUN/TAP interface to serve as an intermediate communication layer between the MTX tunnel and applications. 
+This approach, commonly employed by VPN programs, enables multiple applications to utilize the tunnel connection without requiring modifications to their source code.

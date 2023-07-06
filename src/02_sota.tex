@@ -1,6 +1,6 @@
-\cleardoublepage\chapter{State of the Art}\label{sec:sota}\minitoc\vspace{.5cm}\index{SotA}
+\chapter{State of the Art}\label{sec:sota}\minitoc\vspace{.5cm}\index{SotA}
 This chapter provides a comprehensive and technical explanation of the aforementioned technologies mentioned earlier. 
-The detail of DPDK and SR-IOV and their usage in current 5G system will be introduced in more detail.
+DPDK and SR-IOV technology and their usage in current 5G system will be introduced in more detail.
 Subsequently, the chapter presents the fundamental concept and design of eBPF and AF\_XDP, which is crucial for the implementation of the MTX library.
 
 \section{DPDK: Data Plane Development Kit}
@@ -33,28 +33,6 @@ The \ac{MTX} is designed as a general-purpose multipath tunnel that functions on
 This is similar to how \ac{ZTE} used \ac{sriov} in conjunction with \ac{dpdkpage} in their software stack \cite{zte_upf_full_whitepaper}.
 \\
 
-The Data plane relies on \ac{gptu} protocol with \ac{UDP} as the transport protocol to deliver high volume of data between \ac{UE} and \ac{DN} (see \Cref{fig:introduction:3gpp_5g_data_plane_protocol}), which require powerful processing power and high capable network link.
-According to \ac{3GPP}, an non-exhausted list of \ac{UPF}'s responsibility is \textit{packet routing \& forwarding}, packet \textit{inspection}, \textit{buffering}, \textit{sending} and \textit{forwarding} \cite{3gpp_5g_system_architect_spec_release_18}.
-In order to meet the \ac{SLA} and \ac{QoS} requirements, the \ac{UPF} needs to be deployed in various locations, such as the edge (edge and campus), regional sites, and central data centers. 
-The size and form of each \ac{UPF} instance vary significantly depending on factors such as the number and size of downstream and upstream functions it manages and responds to \cite{zte_upf_full_whitepaper}.
-
-\section{Current 5G deployment}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{resources/images/640_nec_upf_system.PNG}
-    \caption{NEC's containerized UPF software (8 pods per server) on a platform configured with Linux and Kubernetes \cite{nec_upf_whitepaper}}
-    \label{fig:sota:640_nec_upf_system}
-\end{figure}
-% \begin{figure}[H]
-% 	\centering
-% 	\includegraphics[width=1.0\textwidth]{resources/images/Deployment_Requirements_of_Full_Scenario_UPF.PNG}
-% 	\caption{ZTE's White Paper: Deployment Requirements of Full-Scenario UPF \cite{zte_upf_full_whitepaper}}
-%     \label{fig:sota:Deployment_Requirements_of_Full_Scenario_UPF}
-% \end{figure}
-
-It is common to see 5G services to be implemented and deployed in containers.
-The underlying system often manage the containers using an orchestrator, i.e Kubernetes (\Cref{fig:sota:640_nec_upf_system}).
-
 \section{XDP socket: AF\_XDP}
 \subsection{Introduction to eBPF and Linux's kernel space}
 The kernel functions as the central program of an operating system, overseeing its core operations. 
@@ -86,11 +64,7 @@ The \ac{ebpf} kernel program is written in a subset of the C programming languag
 The 64 bit \ac{RISC}-based \ac{ebpf} virtual machine along with a verifier check the code safety and isolate the execution of the \ac{ebpf} kernel program.
 To get started, the kernel program is inserted to the desired code path in the kernel where it will be executed whenever the code path is traversed \cite{lwn_intro_ebpf}.
 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=1.0\textwidth]{resources/images/bcc_tracing_tools_2019.png}
-%     \caption{A wide range of Linux eBPF-based tracing tools \cite{iovisor_page}.}\label{fig:sota:tracing_tools_linux}
-% \end{figure}
+
 
 \subsection{AF\_XDP socket}
 \ac{xdppage} is a type of Linux socket that utilizes \ac{ebpf} to deliver incoming raw network packets arrived from a \ac{NIC} to user space with comparable performance to \ac{dpdkpage} \cite{karlsson_path_to_dpdk_speednodate}. 
@@ -110,9 +84,5 @@ Being a native Linux's feature, \ac{xdppage} has several advantages over other 3
 	\item Security and Update: the open-source and collaborative nature of Linux ensures that its code base is diligently maintained by dedicated maintainers and an active community of contributors, including researcher from universities and institutes, employee from industrial vendors and individual hobbyist.
 \end{itemize}
 
-% \begin{figure}[H]
-% 	\centering
-% 	\includegraphics[width=1.0\textwidth]{XDP_integration_with_the_Linux_network_stack.PNG}
-% 	\caption{XDP’s integration with the Linux network stack \cite{hoiland_jorgensen_express_2018}. The XDP program is activated whenever a packet enter the driver's buffer, where it will be examined. The XDP program makes the decision if the packet should follow its normal path in the network stack, or be discarded/forwarded/delivered to XDP user space program.}\label{fig:sota:xdp_architecture}
-% \end{figure}
+
 

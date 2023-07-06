@@ -1,4 +1,5 @@
-\cleardoublepage\chapter{Related Work}\label{sec:related_work}\minitoc\vspace{.5cm}\index{SotA}
+% \cleardoublepage
+\chapter{Related Work}\label{sec:related_work}\minitoc\vspace{.5cm}\index{SotA}
 
 The concept of multipath is well-established
 In this section we will explore existing multipath protocols, their characteristics, and highlight the unique aspects of our approach. 
@@ -6,7 +7,6 @@ Additionally, we will discuss the building block for the MTX as well as the use 
 Finally, we will take a closer look at the design of the 5G system, with a specific focus on the Data Plane, to explain our plan for showcasing the multipath tunnel using the \ac{gptu} protocol.
 
 \section{Tunneling}\index{Tunneling}
-\todo{these following are my words, but do I need cite here?}
 The concept of a network tunnel draws inspiration from its real-world counterpart, which refers to a confined pathway constructed to direct transportation between two points, separate from the surrounding terrain. 
 In the physical sense, tunnels are often excavated deep beneath the earth's surface to bypass obstacles like mountains, rivers, or ocean channels.
 In the realm of networking, a tunnel can be perceived as a direct network pathway that enables access to another network from the network to which it is currently connected. 
@@ -66,7 +66,7 @@ These components are categorized into two groups: the Control plane and the Data
 
 As mentioned in \Cref{sec:related_work:mp_connection:SCTP}, the control plane uses \ac{SCTP} protocol with multipath support for its internal communication.
 For the Data Plane, while the \ac{gptu} protocol does not have a built-in feature equivalent to multipath, vendors have developed their own data plane technology stack to achieve high performance.
-\ac{NEC} demonstrated its containerized \ac{UPF} solution's capability by handling 640Gbps bandwidth on 1 single 2x32 cores server \cite{nec_upf_whitepaper}.
+\ac{NEC} demonstrated the capability of its containerized \ac{UPF} solution by handling 640Gbps bandwidth on 1 single 2x32 cores server \cite{nec_upf_whitepaper}.
 \ac{dpdkpage} library was used to forward the enormous data flows.
 \ac{ZTE} offers hardware platforms and software stack that use a combination of \ac{dpdkpage}, \ac{sriov} and hardware acceleration technology to support a wide range of bandwidth capacity from 5Gbps to 200Gbps \cite{zte_upf_full_whitepaper}, and up to 462Gbps in a test scenario in cooperation with Intel \cite{zte_5g_core_upf_impl}.
 
@@ -78,10 +78,18 @@ For the Data Plane, while the \ac{gptu} protocol does not have a built-in featur
 \end{figure}
 
 Our \ac{MTX} library is positioned as an alternative to packet handling components based on \ac{dpdkpage} and \ac{sriov}. 
-In the subsequent sections, we will introduce these two technologies and highlight the potential advantages offered by our solution. \todo{I keep this text since MTX offers no perf improvement but usability and compability}
+In the subsequent section, we will introduce briefly how and where can the MTX library help at improving the 5G software stack.
 
-\section{MTX Enhancement for 5G Data Plane}\index{MTX Enhancement for 5G Data Plane}
+\section{MTX Enhancement for 5G Data Plane}
+\index{MTX Enhancement for 5G Data Plane}
 \label{sec:related_work:5g_dataplane_enhancement}
+
+The Data plane relies on \ac{gptu} protocol with \ac{UDP} as the transport protocol to deliver high volume of data between \ac{UE} and \ac{DN}, which require powerful processing power and high capable network link.
+According to \ac{3GPP}, an non-exhausted list of \ac{UPF}'s responsibility is \textit{packet routing \& forwarding}, packet \textit{inspection}, \textit{buffering}, \textit{sending} and \textit{forwarding} \cite{3gpp_5g_system_architect_spec_release_18}.
+In order to meet the \ac{SLA} and \ac{QoS} requirements, the \ac{UPF} needs to be deployed in various locations, such as the edge (edge and campus), regional sites, and central data centers. 
+The size and form of each \ac{UPF} instance vary significantly depending on factors such as the number and size of downstream and upstream functions it manages and responds to \cite{zte_upf_full_whitepaper}.
+\\
+
 In \Cref{fig:related_work:5g_dp_enhancement} we describe how data is moved between \ac{UE} and \ac{DN}, based on 3GPP specification and various sources.
 A \ac{PDU} session is established to create a logical data path between \ac{UE} and \ac{UPF}.
 This \ac{PDU} logical session runs on top of several transporting protocol.
@@ -92,21 +100,13 @@ Data in different categories receives forwarding treatment differently, depends 
 This is managed by splitting the data into streams (called \ac{QoS} Flow, marked with QoS Flow Identification (QFI)), each is governed with different rule set (QoS rules).
 \\
 
-Two potential improvements can be applied to the 5G network with out MTX tunnel:
+Two potential improvements can be applied to the 5G network with the MTX tunnel:
 \begin{itemize}
-    \item N6 connection between UPF (also N9 i.e between UPF-E and UPF-C) and Data network: enhanced by prioritized, flow-aware, high bandwidth multipath tunnel. 
+    \item N6 connection between UPF (also N9, i.e between UPF-E and UPF-C) and Data network: enhanced by prioritized, flow-aware, high bandwidth multipath tunnel. 
 	To meet differentiated SLA requirements for latency, bandwidth and reliability, UPF needs to be deployed at different positions including central DC, regional DC, edge DC and campus DC. 
-	MTX can help saturating physical links coup with support large number of UEs.
     \item 5G user plane:  
 	The back-haul N3 connection between gNodeB-UPF, and mid-haul F1 connection between gNodeB-CU and -DU relied on message-based protocol \ac{gptu} (the character "U" means "user data tunneling") to relay traffic within a PDP session.
 \end{itemize}
-
-% \begin{figure}[H]
-% 	\centering
-% 	\includegraphics[width=0.8\textwidth]{resources/images/3gpp_5g_system_overview.png}
-% 	\caption{3GPP's 5G System Overview \cite{3gpp_5g_system_overview}}
-%     \label{fig:related_work:3gpp_5g_system_overview}
-% \end{figure}
 
 \begin{figure}[H]
 	\centering
@@ -115,19 +115,11 @@ Two potential improvements can be applied to the 5G network with out MTX tunnel:
     \label{fig:related_work:5g_dp_enhancement}
 \end{figure}
 
-In actual deployed systems, \ac{gptu} tunnels are typically established and configured professionally on top of multiple links that are aggregated and managed by a software stack, for instance \ac{dpdkpage} and \ac{sriov}, which involve costly software and (powerful and specifically chosen) hardware that lack flexibility.
-The alternative, open source implementations usually suffers from performance losses due to inefficiency, as noted in Open5GS discussion \cite{open5gs_github_udp_perf_cap}\cite{open5gs_github_dpdk}.
+In actual deployed systems, \ac{gptu} tunnels are typically established and configured professionally on top of multiple links that are aggregated and managed by a software stack (for instance \ac{dpdkpage} and \ac{sriov}).
+This often involves complex software and costly hardware that make the system less flexible and hard to extend.
+Without such investment, open source implementations usually suffers from performance losses due to inefficiency, as noted in Open5GS discussion \cite{open5gs_github_udp_perf_cap}\cite{open5gs_github_dpdk}.
 \\
 
-One of the project's goals is to tackle the performance and usability issues by exploring the development of a straightforward yet robust multipath tunnel capable of functioning in both physical and virtual environments. 
-To ensure ease of maintenance and facilitate compatibility with other protocols, we aim for a tunnel code base that remains simple and minimizes the need for extensive modifications, which is why \ac{xdppage} has been selected as the preferred transport method.
-For the testing phase, we have chosen the \ac{gptu} protocol due to its diverse range of requirements that can be supported by MTX, including flow-awareness, high throughput, low latency, and a comprehensive set of configuration options.
-
-
-% \begin{figure}[H]
-% 	\centering
-% 	\includegraphics[width=1.0\textwidth]{resources/images/gptu_header_and_gpdu_stack.PNG}
-% 	\caption{3GPP: GPT-U header and G-PDU Protocol Stack built on top of UDP/IP protocol \cite{3gpp_gptu}}
-%     \label{fig:related_work:gptu_header_and_gpdu_stack}
-% \end{figure}
-
+MTX is a straightforward yet robust multipath tunnel capable of functioning in both physical and virtual environments. 
+To ensure ease of maintenance and facilitate compatibility with existing application, the tunnel code base will remain simple and minimize the need for extensive modifications as well as dependencies, which is why \ac{xdppage} has been selected as the preferred transport method.
+For the testing phase, the \ac{gptu} protocol is selected due to its diverse range of requirements that can be supported by MTX, including flow-awareness, high throughput, low latency, and a comprehensive set of configuration options.

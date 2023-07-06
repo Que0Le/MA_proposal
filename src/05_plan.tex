@@ -13,13 +13,32 @@ This chapter will outline our project plan and provide a timeline for its execut
 \end{figure}
 
 During the development phase, we adhere to the rapid prototyping model (\Cref{fig:plan:rapid_prototyping_software}). 
-This approach involves starting with a high-level architecture rather than a detailed, concrete design. 
-The focus is on breaking down features and components into tasks, allowing for agile and iterative development. 
-This approach enables us to quickly prototype and test different functionalities, leading to efficient development and flexibility in the design process.
-Each task is designed to be self-contained and independent, allowing for development and testing within the existing code base. 
 The development process follows a loop of building prototypes, reviewing them, refining the implementation, and iterating on the design. 
-The goal is to complete each task within a time frame of 1-2 weeks, ensuring a focused and efficient development process. This iterative approach allows for rapid progress and continuous improvement throughout the project.
+Features and components are broken into  self-contained and independent tasks, each can be completed within a time frame of 1-2 weeks.
+\\
 
+
+The thesis is set to be completed in 6 months (\Cref{fig:plan:TIMELINE}), divided in 3 phases: \textbf{Prototype Building}, \textbf{Feature}, and \textbf{Refinary and Test}.
+The library's development is expected to span a period of 3 months. 
+During the initial month, the focus will be on creating the core features of MTX. 
+These features involve tasks such as packet exchange with XDP socket, collecting and delivering packets from applications, and inspecting packets for flow control purposes. 
+The subsequent 4 weeks will be dedicated to refactoring and shaping the library, ensuring it meets the necessary requirements for packaging and distribution. 
+Following this, the third month will be allocated to constructing the control and data plane to support various configurations. 
+After completing the development process, the fourth month will primarily involve testing the library and addressing any issues that may arise. 
+The remaining two months will be used for building a test application, conducting thorough testing, and analyzing the obtained data. 
+Throughout the entire development process, updates will be made to the thesis documentation.
+
+
+\clearpage
+\begin{sidewaysfigure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{resources/images/TIMELINE.PNG}
+    \caption{Expected progress for the thesis project}
+	\label{fig:plan:TIMELINE}
+  \end{sidewaysfigure}
+
+\clearpage
+\section{Development Environment}
 The development process will take place within a Linux environment. 
 As for testing purposes, the program binary will be deployed and executed on 2 industrial-grade computers \textit{UP CORE} designed by \ac{AAEON}, equipped with multiple Ethernet ports \cite{upc_core} \cite{upc_extension_board}. 
 The binary will establish a tunnel between two UPC machines using three specific Ethernet ports. 
@@ -33,79 +52,3 @@ In this setup, RAN (Radio Access Network) and Open5GS software will be installed
 	\caption{Two UPC machines with 3 ethernet ports connected (\textit{enp3s0}, \textit{enp5s0}, \textit{enp7s0}). Port \textit{enp1s0} is connected to workstation for remote management purpose.}
 	\label{fig:plan:upc_machines}
 \end{figure}
-
-
-\section{Timeline}
-\Cref{fig:plan:TIMELINE} presents the timeline for this project. 
-To successfully complete the thesis, three primary objectives must be accomplished: implementation, experimentation, and thesis documentation.
-The implementation phase will be divided into two stages: the foundation library, which focuses on building the essential features, followed by the functional library, where the remaining features outlined in \Cref{sec:reqs:proposed_solution} will be implemented. 
-Once the implementation is complete, the experimentation phase will commence. 
-Concurrently, the documentation will be developed throughout the project's duration, incorporating the necessary content.
-
-The thesis is set to be completed in 6 months.
-
-\clearpage
-\begin{sidewaysfigure}
-    \centering
-    \includegraphics[width=1.0\textwidth]{resources/images/TIMELINE.PNG}
-    \caption{Expected progress. The thesis can be finished in 6 months..}
-	\label{fig:plan:TIMELINE}
-  \end{sidewaysfigure}
-
-
-
-
-
-% \begin{wrapfigure}{r}{0.2\textwidth}
-%     \centering
-%     \includegraphics[width=0.2\textwidth]{resources/images/example3}
-% \end{wrapfigure}
-
-% \sidenote{Contributions}
-% \todomid{write}
-
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=.55\textwidth]{resources/images/example3}
-%     \caption{Placement of the outlook in the structure of research}\label{fig:hourglass:outlook}
-% \end{figure}
-
-% \sidenote{Dissemination}
-% \todomid{write about \Cref{fig:hourglass:outlook}}
-
-% \section{Conclusions and Impact}
-
-% \sidenote{Context}
-% \todomid{write}
-
-% \sidenote{Contribution 1}
-% \todomid{write}
-
-% \sidenote{Contribution 2}
-% \todomid{write}
-
-% \sidenote{Contribution 3}
-% \todomid{write}
-
-% \section{Outlook}
-
-% \sidenote{Intro}
-% \todomid{write}
-
-% \sidenote{Application Area 1}
-% \todomid{write about \Cref{fig:outlook:aa1}}
-
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=.85\textwidth]{resources/images/example3}
-%     \caption{Area 1~\cite{li2002design}}\label{fig:outlook:aa1}
-% \end{figure}
-
-% \sidenote{Application Area 2}
-% \todomid{write}
-
-% \sidenote{Application Area 3}
-% \todomid{write}
-
-% \sidenote{Application Area 4}
-% \todomid{write}

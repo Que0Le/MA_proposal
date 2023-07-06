@@ -1,27 +1,19 @@
-% \cleardoublepage
 \chapter{Requirement Analysis}\label{sec:reqs}\minitoc\vspace{.5cm}
 \index{Requirements}
 
 % https://www.cs.fsu.edu/~lacher/courses/COP3331/rad.html
 \section{Introduction}
-The objective of this project is to conduct research and implement the concept of a multipath networking tunnel utilizing the \ac{xdppage} technology. The project aims to deliver a comprehensive thesis documentation along with a functional implementation, in the form of a test program based on the \ac{MTX} library.
+The two main objectives of this project are to conduct research and implement the concept of a multipath networking tunnel utilizing the \ac{xdppage} technology. The project will deliver a comprehensive thesis documentation along with a functional implementation, in the form of a test program based on the \ac{MTX} library.
 This \ac{MTX} library will enable the establishment of a network tunnel between two machines, allowing traffic to flow simultaneously over multiple network links. 
 The test program will serve as a demonstration platform for the library, simulating a transport session using the \ac{gptu} protocol — a 5G technology employed for tunneling a significant volume of non-homogeneous data.
 During the demonstration, the library's capabilities will be showcased, including flow management, throughput control, and other essential features that align with the intended purpose of the library.
 
-% Current tunnel and VPN solutions available in the market are limited to single-path functionality. While protocols like \ac{MPTCP} and \ac{SCTP} are well-known for their multipath capabilities, they are primarily designed for exclusive use by a single caller.
-% % Our focus lies in exploring how high-demand applications, particularly within the 5G infrastructure, handle the substantial traffic volume. 
-% Certain implementations leverage DPDK to enhance packet forwarding and processing capabilities beyond the limitations of the Linux network stack on multiple links. 
-% However, these software stacks are not readily accessible for research and testing purposes without purchasing expensive system.
-
-
 \section{Proposed solution}\label{sec:reqs:proposed_solution}
-% To address the need for a multipath connection that supports non-homogeneous and concurrent usage, we introduce the concept of a multipath tunnel. 
 The MTX library is proposed, which offers multipath capability with support for non-homogeneous and concurrent usage.
 To ensure optimal path utilization and minimal latency, we will utilize \ac{xdppage} technology to handle the movement of tunnel traffic. 
 Specifically, the tunnel traffic will consist of UDP packets, allowing for efficient data transmission.
 
-Multipath technique serves as a means of horizontally scaling networking capacity by aggregating resources to increase connection bandwidth. 
+Multipath technique can serve as a means of horizontally scaling networking capacity by aggregating resources to increase connection bandwidth. 
 Additionally, it offers a way to enhance reliability by incorporating redundancy into the network connection. Furthermore, multipath can improve quality of service by enabling optimized treatment and dedicated links for different types of data flows.
 Finally, through the establishment of a multipath tunnel, the resources available on each path can be monitored and efficiently allocated among concurrent applications. 
 This leads to improved resource utilization and overall efficiency in the network.
@@ -32,10 +24,7 @@ This leads to improved resource utilization and overall efficiency in the networ
 	\caption{Tunnel supports multiple flows with different QoS over multiple path. The path can function either as a failover path or consistently participate in the transmission process.}\label{fig:reqs:tunnel_supports_multiple_flows_diff_qos}
 \end{figure}
 
-The following section will present the requirements for the project:
-
 \subsection{Functional requirements}
-% Functional requirements describes the high-level functionality of the system.
 The functional requirements for the \ac{MTX} library shall include ability to:
 \begin{itemize}
     \item Establish a tunnel between 2 hosts and exchange data through the tunnel over the chosen \ac{NIC}s.
@@ -54,14 +43,8 @@ Besides the reliability's \ac{QoS} characteristic, we define the metrics to meas
     \item System load: Tunneling process costs CPU time and RAM usage.
 \end{itemize}
 
-We define the non-functional requirements for the \ac{MTX} library:
+The non-functional requirements for the \ac{MTX} library:
 \begin{itemize}
     \item Usability: \ac{MTX} library should be used similar to a Linux socket. A global configuration will be responsible for managing the overall configuration of the tunnel. On the other hand, each caller will have the ability to configure the traffic characteristics according to their specific requirements.
     \item Performance and Reliability: The tunnel is expected to deliver throughput asymptotic to the line rate while having very low negative effect on overall system load thanks to \ac{xdppage} technology. Measuring is rather complicated since the code quality can't be ensured and high performance hardware will be needed. This problem should be addressed in the course of the project.
 \end{itemize}
-
-% \subsection{System models}
-% Intended to be a general purpose multipath tunnel, \ac{MTX} is designed to be the wrapper around transport layer to abstract the multipath details.
-% Callers interact with the tunnel through shared memory or a TUN/TAP interface.
-% The library can be considered for application where reliability, high performance and ease of maintain requirements converge \todo{more}.
-% \todo{System models describes the scenarios, use cases, object model, and dynamic models for the system. This section contains the complete functional specification, including mock-ups illustrating the user interface of the system and navigational paths representing the sequence of screens. The subsections Object model and Dynamic model are written during the Analysis activity.}

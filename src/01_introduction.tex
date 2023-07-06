@@ -1,4 +1,5 @@
-\cleardoublepage\chapter{Introduction}
+% \cleardoublepage
+\chapter{Introduction}
 \minitoc\label{sec:introduction}\vspace{.5cm}
 
 \section{Background and Motivation}
@@ -76,9 +77,9 @@ The reliability of a connection is closely tied to the failure probabilities of 
 Additionally, \ac{QoS} of many applications is affected by network parameters such as latency, peak throughput, and jitter \cite{gozdecki_quality_2003}.
 Depending on the use case, connection reliability can either serve as a \ac{QoS} measurement factor (e.g., for commercial network providers) or a strict requirement (critical applications). 
 It is commonly acknowledged that ensuring a 99.99 percent reliability comes with a significant price tag, and pushing for such guarantees futher will likely result in an exponential cost escalation.
-Generally, there are two non-exclusive strategies commonly employed to enhance connection reliability: strengthening individual links or incorporating redundancy.
 \\
 
+Generally, there are two non-exclusive strategies commonly employed to enhance connection reliability: strengthening individual links or incorporating redundancy.
 While superior hardware can reduce the probability of connection failures and address many \ac{QoS} inadequacies, having multiple links or routes optimized for specific applications is often a more practical and cost-effective approach for operators, particularly when dealing with heterogeneous data traffic \cite{chen_overview_1998}.
 In such cases, a multipath tunnel with flow-aware capabilities can be utilized as an abstraction layer to manage the underlying links for applications relying on the connection, which allows for improved reliability and more effective utilization of resources. 
 \todo{review}
@@ -113,7 +114,7 @@ To overcome the limitations described, this work proposes MTX as an implementati
 The scope of the project is defined as follows:
 \begin{itemize}
     \item Scope of research: this research is limited to investigating a tunnel implementation based on \ac{xdppage} technology that employs multipath and flow-aware concepts. 
-    A functional tunnel will be built in three months.
+    A functional tunnel will be built in four months.
     A benchmark will be caried out.
     % From there, more complex features will be added along with a test application to run on top the tunnel for testing and demonstrating purposes. In the course of building process, this initiated documentation will be updated until the project reaches its time limitation (6 months in total). Although the tunnel library will be a general purpose framework that can be deployed for any application, it is intended to be tested with 5G's software stack in mind.
     \item Implementation: the tunnel will be implemented in C/C++ and uses \ac{xdppage} sockets as the packet transport layer. 
@@ -137,9 +138,9 @@ The scope of the project is defined as follows:
 The main objectives of the project is defined as follows:
 \begin{itemize}
     \item Multipath protocol design: Creating a well-defined header structure and establishing logic for traffic aggregation and distribution within the tunnel.
-    \item Implementation and packaging: The library will be developed in C/C++ programming languages for Linux system.
     \item Tunnel library: Create the MTX library that are capable of handling distributing and aggregating traffic over multiple lines for multiple applications simultainously. 
     Additionally, make configuration available to govern traffic on flow and packet levels.
+    \item Implementation and packaging: The library will be developed in C/C++ programming languages for Linux system.
     \item Demonstration: Ideally, an implementation of the GPT-U protocol will be built to showcase the features of the tunnel.
 \end{itemize}
 
